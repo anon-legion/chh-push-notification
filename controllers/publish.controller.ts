@@ -5,7 +5,13 @@ import { StatusCodes } from 'http-status-codes';
 async function postPushNotif(req: Request, res: Response): Promise<void> {
   const { serviceClient, body } = req;
   console.log(body.notification);
-  await serviceClient.sendToAll({ message: body.notification });
+
+  if (body.target === 'all') {
+    await serviceClient.sendToAll({ title: 'test title', message: body.notification });
+  } else {
+    await serviceClient.sendToUser(body.target, { title: 'irving bayot', message: body.notification });
+  }
+
   res.status(StatusCodes.OK).send('Publishing push notification');
 }
 
