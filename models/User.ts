@@ -41,15 +41,10 @@ userSchema.pre<IUser>('save', async function hashPassword() {
 
 // use schema method to generate token
 userSchema.methods.createJwt = function createJwt() {
-  return jwt.sign(
-    // eslint-disable-next-line no-underscore-dangle
-    { _id: this._id, username: this.username },
-    process.env.JWT_PRVT_KEY ?? '',
-    {
-      algorithm: 'ES384',
-      expiresIn: '30d',
-    }
-  );
+  return jwt.sign({ _id: this._id, username: this.username }, process.env.JWT_PRVT_KEY ?? '', {
+    algorithm: 'ES384',
+    expiresIn: '30d',
+  });
 };
 
 // use schema method to compare password

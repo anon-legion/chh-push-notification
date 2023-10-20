@@ -35,6 +35,7 @@ module.exports = {
   rules: {
     // eslint-plugin-n bug unable to resolve import without file extensions conflicts with Ts
     'n/no-missing-import': 0,
+    'no-underscore-dangle': 1,
     '@typescript-eslint/no-misused-promises': [
       'error',
       {
