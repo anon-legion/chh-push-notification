@@ -33,9 +33,9 @@ module.exports = {
   },
   root: true,
   rules: {
-    // eslint-plugin-n bug unable to resolve import without file extensions conflicts with Ts
-    'n/no-missing-import': 0,
     'no-underscore-dangle': 1,
+    // eslint-plugin-n unable to resolve import without file extensions bug conflicts with Ts
+    'n/no-missing-import': 0,
     '@typescript-eslint/no-misused-promises': [
       'error',
       {

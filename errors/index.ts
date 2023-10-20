@@ -1,5 +1,12 @@
 import BadRequestError from './bad-request';
+import InternalServerError from './internal-server-error';
 import NotFoundError from './not-found';
 import UnauthenticatedError from './unauthenticated';
 
-export { BadRequestError, NotFoundError, UnauthenticatedError };
+// prettier-ignore
+export {
+  BadRequestError,
+  InternalServerError,
+  NotFoundError,
+  UnauthenticatedError
+};

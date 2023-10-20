@@ -1,6 +1,7 @@
 import { Schema, model } from 'mongoose';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { InternalServerError } from '../errors';
 import type { IUser } from './types';
 
 const userSchema = new Schema<IUser>({
@@ -35,7 +36,7 @@ userSchema.pre<IUser>('save', async function hashPassword() {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
   } catch (err: any) {
-    throw new Error(String(err));
+    throw new InternalServerError(String(err));
   }
 });
 
