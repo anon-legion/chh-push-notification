@@ -15,7 +15,7 @@ async function postPushNotif(req: Request, res: Response): Promise<void> {
   res.status(StatusCodes.OK).send('Publishing push notification');
 }
 
-async function getPushNotif(req: Request, res: Response): Promise<void> {
+async function getPushNotif(_req: Request, res: Response): Promise<void> {
   res.status(StatusCodes.OK).send('Getting push notification');
 }
 

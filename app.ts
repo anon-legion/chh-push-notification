@@ -4,9 +4,12 @@ import 'express-async-errors'; // import immediately to patch express
 import helmet from 'helmet';
 import cors from 'cors';
 // import modules
+import mongoose from 'mongoose';
 import { WebPubSubServiceClient } from '@azure/web-pubsub';
 import publishRouter from './routes/publish.route';
 import subscribeRouter from './routes/subscribe.route';
+import notFoundMiddleware from './middlewares/not-found';
+import errorHandlerMiddleware from './middlewares/error-handler';
 
 // initialize express
 const app = express();
@@ -15,15 +18,9 @@ const port = process.env.PORT ?? 3000;
 const serviceClient = new WebPubSubServiceClient(process.env.AZURE_PUBSUB_CONNSTRING ?? '', 'notification');
 console.log('serviceClient created');
 
-// const corsOptions = {
-//   origin: 'http://localhost:8100',
-//   optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
-// };
-
 // middlewares
 app.use(express.json());
 app.use(helmet());
-// app.use(cors(corsOptions));
 app.use(cors());
 app.use((req, _, next) => {
   req.serviceClient = serviceClient;
@@ -37,14 +34,18 @@ app.use('/api/v1/test_endpoint', (_, res: Response) => {
   res.status(200).send('Express + Typescript Server');
 });
 
+// 404 and error handler middleware to catch request errors
+app.use(notFoundMiddleware);
+app.use(errorHandlerMiddleware);
+
 async function start(): Promise<void> {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    await mongoose.connect(process.env.MDB_URI!, { dbName: 'chh-notification' });
     app.listen(port, () => {
-      // eslint-disable-next-line no-console
       console.log(`Server is listening on port [${port}]`);
     });
   } catch (e) {
-    // eslint-disable-next-line no-console
     console.error(e);
   }
 }
