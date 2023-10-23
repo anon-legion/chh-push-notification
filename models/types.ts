@@ -6,4 +6,6 @@ export interface IUser {
   email: string;
   password: string;
   isActive: boolean;
+  createJwt: () => string;
+  comparePassword: (password: string) => Promise<boolean>;
 }
