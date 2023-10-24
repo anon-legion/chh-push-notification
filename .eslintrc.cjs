@@ -50,6 +50,7 @@ module.exports = {
         argsIgnorePattern: '^_',
       },
     ],
+    '@typescript-eslint/strict-boolean-expressions': 1,
   },
   settings: {
     node: {

@@ -6,6 +6,7 @@ import cors from 'cors';
 // import modules
 import mongoose from 'mongoose';
 import { WebPubSubServiceClient } from '@azure/web-pubsub';
+import authRouter from './routes/auth.route';
 import publishRouter from './routes/publish.route';
 import subscribeRouter from './routes/subscribe.route';
 import notFoundMiddleware from './middlewares/not-found';
@@ -28,6 +29,7 @@ app.use((req, _, next) => {
 });
 
 // routes
+app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/publish', publishRouter);
 app.use('/api/v1/subscribe', subscribeRouter);
 app.use('/api/v1/test_endpoint', (_, res: Response) => {
