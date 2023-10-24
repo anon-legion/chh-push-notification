@@ -40,6 +40,8 @@ userSchema.pre<IUser>('save', async function hashPassword() {
   }
 });
 
+// userSchema.post<IUser>('save', async function handle)
+
 // schema method to generate token
 userSchema.methods.createJwt = function createJwt() {
   return jwt.sign(
