@@ -30,7 +30,7 @@ const userSchema = new Schema<IUser>({
   },
 });
 
-// use pre-save mongoose middleware to hash password before saving to database
+// pre-save mongoose middleware to hash password before saving to database
 userSchema.pre<IUser>('save', async function hashPassword() {
   try {
     const salt = await bcrypt.genSalt(10);
@@ -40,7 +40,7 @@ userSchema.pre<IUser>('save', async function hashPassword() {
   }
 });
 
-// use schema method to generate token
+// schema method to generate token
 userSchema.methods.createJwt = function createJwt() {
   return jwt.sign(
     { _id: this._id, username: this.username },
@@ -52,7 +52,7 @@ userSchema.methods.createJwt = function createJwt() {
   );
 };
 
-// use schema method to compare password
+// schema method to compare password
 userSchema.methods.comparePassword = async function comparePw(password: string) {
   const isMatch = await bcrypt.compare(password, this.password);
   return isMatch;
