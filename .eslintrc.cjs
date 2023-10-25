@@ -36,6 +36,13 @@ module.exports = {
     'no-underscore-dangle': 1,
     // eslint-plugin-n unable to resolve import without file extensions bug conflicts with Ts
     'n/no-missing-import': 0,
+    'lines-between-class-members': 'off',
+    '@typescript-eslint/lines-between-class-members': [
+      1,
+      {
+        exceptAfterOverload: true,
+      },
+    ],
     '@typescript-eslint/no-misused-promises': [
       'error',
       {

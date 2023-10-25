@@ -1,5 +1,8 @@
 class CustomApiError extends Error {
-  constructor(public message: string) {
+  constructor(
+    public message: string,
+    public errors?: any[]
+  ) {
     super(message);
   }
 }

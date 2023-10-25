@@ -1,11 +1,12 @@
 import express, { type Response } from 'express';
 import 'express-async-errors'; // import immediately to patch express
 // import security packages
-import helmet from 'helmet';
 import cors from 'cors';
+import helmet from 'helmet';
 // import modules
 import mongoose from 'mongoose';
 import { WebPubSubServiceClient } from '@azure/web-pubsub';
+import xssSanitizer from './middlewares/xss-sanitzer';
 import authRouter from './routes/auth.route';
 import publishRouter from './routes/publish.route';
 import subscribeRouter from './routes/subscribe.route';
@@ -23,7 +24,8 @@ console.log('serviceClient created');
 app.use(express.json());
 app.use(helmet());
 app.use(cors());
-app.use((req, _, next) => {
+app.use(xssSanitizer(['body']));
+app.use((req, _res, next) => {
   req.serviceClient = serviceClient;
   next();
 });
@@ -32,7 +34,7 @@ app.use((req, _, next) => {
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/publish', publishRouter);
 app.use('/api/v1/subscribe', subscribeRouter);
-app.use('/api/v1/test_endpoint', (_, res: Response) => {
+app.use('/api/v1/test_endpoint', (req, res: Response) => {
   res.status(200).send('Express + Typescript Server');
 });
 

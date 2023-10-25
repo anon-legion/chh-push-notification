@@ -43,8 +43,7 @@ userSchema.pre<IUser>('save', async function hashPassword() {
 // post-save mongoose middleware to handle duplicate key error
 userSchema.post<IUser>('save', (err: MongooseError, _doc: Document, next: (err?: MongooseError) => void) => {
   if (err.name === 'MongoServerError' && err.message.includes('E11000')) {
-    console.log(err.message);
-    next(new ConflictError('Email already exists'));
+    next(new ConflictError('Duplicate key error, value already exists', ['email']));
   } else {
     next();
   }

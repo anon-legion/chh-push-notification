@@ -3,10 +3,12 @@ import CustomApiError from './custom-api';
 
 class ConflictError extends CustomApiError {
   statusCode: StatusCodes;
+  errors: string[];
 
-  constructor(message: string) {
+  constructor(message: string, errors: string[]) {
     super(message);
     this.statusCode = StatusCodes.CONFLICT;
+    this.errors = errors;
   }
 }
 

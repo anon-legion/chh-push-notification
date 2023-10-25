@@ -28,9 +28,9 @@ const errorHandlerMiddleware = (err: Error, _req: Request, res: Response, _next:
     errors: [],
   };
 
-  // if error is thrown by express-validator append validationErrors to errorObj
   if (err instanceof ConflictError) {
     customError.statusCode = err.statusCode;
+    errObj.errors = err.errors;
   }
 
   res.status(customError.statusCode).json(errObj);
