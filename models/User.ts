@@ -1,7 +1,7 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, type Document, type MongooseError } from 'mongoose';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { InternalServerError } from '../errors';
+import { ConflictError, InternalServerError } from '../errors';
 import type { IUser } from './types';
 
 const userSchema = new Schema<IUser>({
@@ -40,7 +40,15 @@ userSchema.pre<IUser>('save', async function hashPassword() {
   }
 });
 
-// userSchema.post<IUser>('save', async function handle)
+// post-save mongoose middleware to handle duplicate key error
+userSchema.post<IUser>('save', (err: MongooseError, _doc: Document, next: (err?: MongooseError) => void) => {
+  if (err.name === 'MongoServerError' && err.message.includes('E11000')) {
+    console.log(err.message);
+    next(new ConflictError('Email already exists'));
+  } else {
+    next();
+  }
+});
 
 // schema method to generate token
 userSchema.methods.createJwt = function createJwt() {

@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import { StatusCodes } from 'http-status-codes';
+import { ConflictError } from '../errors';
 
 interface CustomError {
   statusCode: number;
@@ -8,7 +9,7 @@ interface CustomError {
 
 interface ErrorResponse {
   message: string;
-  errors?: any;
+  errors?: any[];
 }
 
 // if CustomApiError is thrown, it will assign the statusCode and message to customError object
@@ -24,13 +25,13 @@ const errorHandlerMiddleware = (err: Error, _req: Request, res: Response, _next:
   // error object to be sent as error response
   const errObj: ErrorResponse = {
     message: customError.message,
+    errors: [],
   };
 
-  // // if error is thrown by express-validator append validationErrors to errorObj
-  // if (err instanceof InvalidPayloadError) {
-  //   errObj.errors = err.validationErrors;
-  //   customError.statusCode = err.statusCode;
-  // }
+  // if error is thrown by express-validator append validationErrors to errorObj
+  if (err instanceof ConflictError) {
+    customError.statusCode = err.statusCode;
+  }
 
   res.status(customError.statusCode).json(errObj);
 };
