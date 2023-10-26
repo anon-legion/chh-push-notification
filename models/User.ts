@@ -52,7 +52,7 @@ userSchema.post<IUser>('save', (err: MongooseError, _doc: Document, next: (err?:
 // schema method to generate token
 userSchema.methods.createJwt = function createJwt() {
   return jwt.sign(
-    { _id: this._id, username: this.username },
+    { userId: this._id, username: this.username },
     Buffer.from(process.env.JWT_PRVT_KEY ?? '', 'base64').toString('ascii'),
     {
       algorithm: 'ES384',

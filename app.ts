@@ -6,12 +6,14 @@ import helmet from 'helmet';
 // import modules
 import mongoose from 'mongoose';
 import { WebPubSubServiceClient } from '@azure/web-pubsub';
+import authMiddleware from './middlewares/authentication';
+import errorHandlerMiddleware from './middlewares/error-handler';
+import notFoundMiddleware from './middlewares/not-found';
 import xssSanitizer from './middlewares/xss-sanitzer';
 import authRouter from './routes/auth.route';
 import publishRouter from './routes/publish.route';
 import subscribeRouter from './routes/subscribe.route';
-import notFoundMiddleware from './middlewares/not-found';
-import errorHandlerMiddleware from './middlewares/error-handler';
+import mockDataRouter from './routes/mock-data.route';
 
 // initialize express
 const app = express();
@@ -32,9 +34,10 @@ app.use((req, _res, next) => {
 
 // routes
 app.use('/api/v1/auth', authRouter);
-app.use('/api/v1/publish', publishRouter);
+app.use('/api/v1/generate_mock_notif', mockDataRouter);
+app.use('/api/v1/publish', authMiddleware, publishRouter);
 app.use('/api/v1/subscribe', subscribeRouter);
-app.use('/api/v1/test_endpoint', (req, res: Response) => {
+app.use('/api/v1/test_endpoint', (_req, res: Response) => {
   res.status(200).send('Express + Typescript Server');
 });
 
