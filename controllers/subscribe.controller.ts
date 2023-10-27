@@ -11,6 +11,7 @@ async function getAccessToken(req: Request, res: Response): Promise<void> {
   } = req;
 
   try {
+    // delete existing access tokens for user and app
     await AccessToken.deleteOne({ userId, app });
 
     const token = await serviceClient.getClientAccessToken({ userId, groups: ['all', app] });

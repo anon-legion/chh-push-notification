@@ -43,10 +43,17 @@ async function startPolling(req: Request, res: Response) {
 
   try {
     pollingInterval = setInterval(async () => {
-      const notificationQuery = await Notification.find({ status: 1 })
-        .select('appReceiver message messageType recipientId')
-        .lean();
+      const notificationQuery =
+        (await Notification.find({ status: 1 }).select('appReceiver message messageType recipientId').lean()) ?? [];
       console.log(notificationQuery);
+      // TODO:
+      // 1. iterate through notificationQuery and check if userId is connected to pubsub
+      for (let notif of notificationQuery) {
+        // 2. if connected, send notification
+        const userId = notif.recipientId;
+        // const isConnected = await req.serviceClient.hasUser(userId);
+      }
+      // 3. update notification status to 2
     }, body.secondsInterval * 1000);
 
     console.log('POLLING START');
