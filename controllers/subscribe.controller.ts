@@ -11,6 +11,8 @@ async function getAccessToken(req: Request, res: Response): Promise<void> {
   } = req;
 
   try {
+    await AccessToken.deleteOne({ userId, app });
+
     const token = await serviceClient.getClientAccessToken({ userId, groups: ['all', app] });
     // token guard clause
     if (!token) throw new InternalServerError('Failed to generate access token, try again later');
