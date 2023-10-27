@@ -34,7 +34,7 @@ app.use((req, _res, next) => {
 
 // routes
 app.use('/api/v1/auth', authRouter);
-app.use('/api/v1/generate_mock_notif', mockDataRouter);
+app.use('/api/v1/generate_mock_notif', authMiddleware, mockDataRouter);
 app.use('/api/v1/publish', authMiddleware, publishRouter);
 app.use('/api/v1/subscribe', subscribeRouter);
 app.use('/api/v1/test_endpoint', (_req, res: Response) => {

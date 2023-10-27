@@ -10,13 +10,13 @@ export interface IUser {
   comparePassword: (password: string) => Promise<boolean>;
 }
 
-type AppReceiver = 'doki' | 'nursi' | 'pxi' | 'resi';
+type ChhApps = 'doki' | 'nursi' | 'pxi' | 'resi';
 type MessageType = 'admission' | 'approve' | 'diagResults' | 'pf';
 type Status = 1 | 2 | 3;
 
 export interface INotification {
   _id: Types.ObjectId;
-  appReceiver: AppReceiver;
+  appReceiver: ChhApps;
   message: string;
   messageType: MessageType;
   recipientId: string;
@@ -24,4 +24,18 @@ export interface INotification {
   dateTimeSend: Date;
   dateTimeRead: Date;
   urlRedirect: string | null;
+}
+
+interface IToken {
+  token: string;
+  baseUrl: string;
+  url: string;
+}
+
+export interface IAccessToken {
+  _id: Types.ObjectId;
+  userId: string;
+  app: ChhApps;
+  accessToken: IToken;
+  timeStamp: Date;
 }
