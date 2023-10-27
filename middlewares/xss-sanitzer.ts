@@ -3,7 +3,6 @@ import type { Request, Response, NextFunction } from 'express';
 
 type ValidData = Request['body'] | Request['query'] | Request['params'];
 type ValidKeys = 'body' | 'params' | 'query';
-type KeyArray = ValidKeys[];
 
 function clean<T extends ValidData>(data: ValidData): T {
   let isObject = false;
@@ -18,7 +17,7 @@ function clean<T extends ValidData>(data: ValidData): T {
   return data;
 }
 
-function xssSanitizer(keys: KeyArray = []) {
+function xssSanitizer(keys: ValidKeys[] = []) {
   return (req: Request, _res: Response, next: NextFunction) => {
     if (req.body && (keys.includes('body') || !keys.length)) req.body = clean<Request['body']>(req.body);
     if (req.query && (keys.includes('query') || !keys.length)) req.query = clean<Request['query']>(req.query);
