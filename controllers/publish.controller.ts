@@ -1,13 +1,16 @@
+/* eslint-disable no-console */
 import type { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { InternalServerError } from '../errors';
-import Notification from '../models/Notification';
+import Notif from '../models/Notification';
 import resObj from './utilities/success-response';
+import type { INotification } from '../models/types';
 
 let pollingInterval: NodeJS.Timeout | null = null;
 
 async function postPushNotif(req: Request, res: Response): Promise<void> {
   const { serviceClient, body } = req;
+  console.log(`target: ${body.target}`);
   console.log(body.notification);
 
   try {
@@ -33,9 +36,12 @@ async function getPushNotif(_req: Request, res: Response): Promise<void> {
   }
 }
 
-async function startPolling(req: Request, res: Response) {
-  const { body } = req;
-  if (pollingInterval) {
+async function startPolling(req: Request, res: Response): Promise<void> {
+  const {
+    body: { secondsInterval = 1 },
+  } = req;
+
+  if (pollingInterval !== null) {
     console.log('**polling already started**');
     res.status(StatusCodes.OK).send(resObj('Polling already started'));
     return;
@@ -44,17 +50,21 @@ async function startPolling(req: Request, res: Response) {
   try {
     pollingInterval = setInterval(async () => {
       const notificationQuery =
-        (await Notification.find({ status: 1 }).select('appReceiver message messageType recipientId').lean()) ?? [];
-      console.log(notificationQuery);
+        (await Notif.find({ status: 1 }).select('appReceiver message messageType recipientId').lean()) ?? [];
       // TODO:
-      // 1. iterate through notificationQuery and check if userId is connected to pubsub
-      for (let notif of notificationQuery) {
-        // 2. if connected, send notification
-        const userId = notif.recipientId;
-        // const isConnected = await req.serviceClient.hasUser(userId);
-      }
+      const sentNotifications: INotification[] = await Promise.all(
+        notificationQuery.map(async (notif: INotification): Promise<INotification> => {
+          const userId = notif.recipientId;
+          // 2. if connected, send notification
+          const isConnected = await req.serviceClient.userExists(userId);
+          console.log(`userId: ${userId}`);
+          console.log(`is connected: ${isConnected}\n`);
+          return notif;
+        })
+      );
       // 3. update notification status to 2
-    }, body.secondsInterval * 1000);
+      console.log(sentNotifications);
+    }, secondsInterval * 1000);
 
     console.log('POLLING START');
     res.status(StatusCodes.OK).send(resObj('Polling start', {}));
@@ -64,8 +74,8 @@ async function startPolling(req: Request, res: Response) {
   }
 }
 
-function stopPolling(_req: Request, res: Response) {
-  if (!pollingInterval) {
+function stopPolling(_req: Request, res: Response): void {
+  if (pollingInterval === null) {
     console.log('**polling already stopped**');
     res.status(StatusCodes.OK).send(resObj('Polling already stopped'));
     return;

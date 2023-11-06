@@ -1,5 +1,5 @@
 import { StatusCodes } from 'http-status-codes';
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import Notification from '../models/Notification';
 import { InternalServerError } from '../errors';
 import resObj from './utilities/success-response';
@@ -27,11 +27,9 @@ const randomMessageType = (): string => {
   return types[Math.floor(Math.random() * types.length)];
 };
 
-const randomRecipientId = (): string => {
-  return String(Math.floor(Math.random() * 1000000000000));
-};
+const randomRecipientId = (): string => String(Math.floor(Math.random() * 1000000000000));
 
-async function populateNotificaiton(_req: Request, res: Response) {
+async function populateNotificaiton(_req: Request, res: Response): Promise<void> {
   try {
     const [notif1, notif2, notif3] = await Promise.all([
       Notification.create({
@@ -48,11 +46,18 @@ async function populateNotificaiton(_req: Request, res: Response) {
         recipientId: randomRecipientId(),
         status: 1,
       }),
+      // Notification.create({
+      //   appReceiver: randomAppReceiver(),
+      //   message: randomMessage(),
+      //   messageType: randomMessageType(),
+      //   recipientId: randomRecipientId(),
+      //   status: 1,
+      // }),
       Notification.create({
-        appReceiver: randomAppReceiver(),
+        appReceiver: 'doki',
         message: randomMessage(),
         messageType: randomMessageType(),
-        recipientId: randomRecipientId(),
+        recipientId: '987654321012',
         status: 1,
       }),
     ]);

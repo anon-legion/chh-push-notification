@@ -1,14 +1,16 @@
 import type { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import AccessToken from '../models/AccessToken';
-import { InternalServerError } from '../errors';
+import { BadRequestError, InternalServerError } from '../errors';
 import resObj from './utilities/success-response';
 
 async function getAccessToken(req: Request, res: Response): Promise<void> {
   const {
     serviceClient,
-    body: { userId, app },
+    body: { userId = '', app = '' },
   } = req;
+
+  if (!userId || !app) throw new BadRequestError('Missing userId or app');
 
   try {
     // delete existing access tokens for user and app

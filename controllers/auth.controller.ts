@@ -6,7 +6,9 @@ import User from '../models/User';
 
 async function register(req: Request, res: Response): Promise<void> {
   // destructure payload from req.body
-  const { username, email, password } = req.body;
+  const { username = '', email = '', password = '' } = req.body;
+
+  if (!username || !email || !password) throw new BadRequestError('Please provide username, email, and password');
 
   try {
     // save user to database
@@ -20,9 +22,9 @@ async function register(req: Request, res: Response): Promise<void> {
 }
 
 async function login(req: Request, res: Response): Promise<void> {
-  const { email, password } = req.body;
-  // email and password guard clause
-  if (!email || !password) throw new BadRequestError('Please provide user credentials');
+  const { email = '', password = '' } = req.body;
+
+  if (!email || !password) throw new BadRequestError('Please provide email and password');
 
   try {
     // find user in database
