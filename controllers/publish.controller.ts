@@ -1,10 +1,16 @@
 /* eslint-disable no-console */
 import type { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
+import { odata } from '@azure/web-pubsub';
 import { InternalServerError } from '../errors';
 import Notif from '../models/Notification';
 import resObj from './utilities/success-response';
 import type { INotification } from '../models/types';
+
+// interface IFilteredNotification {
+//   notification: INotification;
+//   isUserConnected: Promise<boolean>;
+// }
 
 let pollingInterval: NodeJS.Timeout | null = null;
 
@@ -38,7 +44,7 @@ async function getPushNotif(_req: Request, res: Response): Promise<void> {
 
 async function startPolling(req: Request, res: Response): Promise<void> {
   const {
-    body: { secondsInterval = 1 },
+    body: { secondsInterval = 3 },
   } = req;
 
   if (pollingInterval !== null) {
@@ -49,21 +55,32 @@ async function startPolling(req: Request, res: Response): Promise<void> {
 
   try {
     pollingInterval = setInterval(async () => {
-      const notificationQuery =
+      const pendingNotifications =
         (await Notif.find({ status: 1 }).select('appReceiver message messageType recipientId').lean()) ?? [];
-      // TODO:
-      const sentNotifications: INotification[] = await Promise.all(
-        notificationQuery.map(async (notif: INotification): Promise<INotification> => {
-          const userId = notif.recipientId;
-          // 2. if connected, send notification
-          const isConnected = await req.serviceClient.userExists(userId);
-          console.log(`userId: ${userId}`);
-          console.log(`is connected: ${isConnected}\n`);
-          return notif;
-        })
-      );
-      // 3. update notification status to 2
-      console.log(sentNotifications);
+
+      const filteredNotifications = (
+        await Promise.all(
+          pendingNotifications.map(async (notif: INotification) => {
+            const isUserConnected = await req.serviceClient.userExists(notif.recipientId);
+            return { notification: notif, isUserConnected };
+          })
+        )
+      ).filter((item) => item.isUserConnected);
+
+      // console.log(filteredNotifications);
+      filteredNotifications.forEach(async (item) => {
+        // await Notif.findByIdAndUpdate(item.notification._id, { status: 2 });
+        await req.serviceClient.sendToUser(
+          item.notification.recipientId,
+          {
+            title: item.notification.messageType,
+            message: item.notification.message,
+          },
+          {
+            filter: odata`${item.notification.appReceiver} in groups`,
+          }
+        );
+      });
     }, secondsInterval * 1000);
 
     console.log('POLLING START');
