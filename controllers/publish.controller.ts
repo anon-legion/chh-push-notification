@@ -78,13 +78,16 @@ async function startPolling(req: Request, res: Response): Promise<void> {
           },
           {
             filter: odata`${item.notification.appReceiver} in groups`,
+            onResponse: (response) => {
+              console.log(response);
+            },
           }
         );
       });
     }, secondsInterval * 1000);
 
     console.log('POLLING START');
-    res.status(StatusCodes.OK).send(resObj('Polling start', {}));
+    res.status(StatusCodes.OK).send(resObj('Polling start'));
   } catch (err: any) {
     console.error(err);
     throw new InternalServerError(err.message ?? 'Something went wrong, try again later');
