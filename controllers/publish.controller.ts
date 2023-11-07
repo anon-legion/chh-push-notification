@@ -5,6 +5,7 @@ import { odata } from '@azure/web-pubsub';
 import { InternalServerError } from '../errors';
 import Notif from '../models/Notification';
 import resObj from './utilities/success-response';
+import updateNotification from './utilities/updateNotificaiton';
 import type { INotification } from '../models/types';
 
 // interface IFilteredNotification {
@@ -55,8 +56,7 @@ async function startPolling(req: Request, res: Response): Promise<void> {
 
   try {
     pollingInterval = setInterval(async () => {
-      const pendingNotifications =
-        (await Notif.find({ status: 1 }).select('appReceiver message messageType recipientId').lean()) ?? [];
+      const pendingNotifications = (await Notif.find({ status: 1 }).select('-__v').lean()) ?? [];
 
       const filteredNotifications = (
         await Promise.all(
@@ -79,7 +79,10 @@ async function startPolling(req: Request, res: Response): Promise<void> {
           {
             filter: odata`${item.notification.appReceiver} in groups`,
             onResponse: (response) => {
-              console.log(response);
+              if (response.status === 202) {
+                const notificationQuery = updateNotification(item.notification, 2);
+                console.log(notificationQuery);
+              }
             },
           }
         );
