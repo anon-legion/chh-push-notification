@@ -13,8 +13,20 @@ async function getAccessToken(req: Request, res: Response): Promise<void> {
   if (!userId || !app) throw new BadRequestError('Missing userId or app');
 
   try {
-    // delete existing access tokens for user and app
-    await AccessToken.deleteOne({ userId, app });
+    // check if access token already exists
+    const userAccessToken = await AccessToken.findOne({ userId, app })
+      .select('-_id accessToken timeStamp')
+      .lean();
+
+    if (userAccessToken) {
+      res.status(StatusCodes.OK).send(
+        resObj('Access token already exists', {
+          ...userAccessToken.accessToken,
+          timeStamp: userAccessToken.timeStamp,
+        })
+      );
+      return;
+    }
 
     const token = await serviceClient.getClientAccessToken({
       userId,
@@ -29,7 +41,9 @@ async function getAccessToken(req: Request, res: Response): Promise<void> {
     if (tokenQuery === null || tokenQuery === undefined)
       throw new InternalServerError('Something went wrong, try again later');
 
-    res.status(StatusCodes.OK).send(resObj('Access token generated', { ...token }));
+    res
+      .status(StatusCodes.OK)
+      .send(resObj('Access token generated', { ...token, timeStamp: new Date() }));
   } catch (err: any) {
     console.error(err);
     throw new InternalServerError(err.message ?? 'Something went wrong, try again later');

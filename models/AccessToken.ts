@@ -28,7 +28,7 @@ const accessTokenSchema = new Schema<IAccessToken>({
   timeStamp: {
     type: Date,
     required: false,
-    default: Date.now(),
+    default: new Date(),
   },
 });
 

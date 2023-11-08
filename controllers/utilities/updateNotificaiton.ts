@@ -9,7 +9,7 @@ async function updateNotification(
   try {
     const updatedNotification = await Notification.findByIdAndUpdate(
       notification._id,
-      { status, dateTimeSend: Date.now() },
+      { status, dateTimeSend: new Date() },
       { new: true }
     )
       .select('-__v')
