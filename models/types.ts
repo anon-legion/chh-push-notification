@@ -10,8 +10,8 @@ export interface IUser {
   comparePassword: (password: string) => Promise<boolean>;
 }
 
+export type MessageType = 'admission' | 'approve' | 'diagResults' | 'pf';
 type ChhApps = 'doki' | 'nursi' | 'pxi' | 'resi';
-type MessageType = 'admission' | 'approve' | 'diagResults' | 'pf';
 type Status = 1 | 2 | 3;
 
 export interface INotification {

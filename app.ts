@@ -19,7 +19,10 @@ import mockDataRouter from './routes/mock-data.route';
 const app = express();
 const port = process.env.PORT ?? 3000;
 
-const serviceClient = new WebPubSubServiceClient(process.env.AZURE_PUBSUB_CONNSTRING ?? '', 'notification');
+const serviceClient = new WebPubSubServiceClient(
+  process.env.AZURE_PUBSUB_CONNSTRING ?? '',
+  'notification'
+);
 console.log('serviceClient created');
 
 // middlewares

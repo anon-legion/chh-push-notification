@@ -6,14 +6,15 @@ import { InternalServerError } from '../errors';
 import Notif from '../models/Notification';
 import resObj from './utilities/success-response';
 import updateNotification from './utilities/updateNotificaiton';
-import type { INotification } from '../models/types';
-
-// interface IFilteredNotification {
-//   notification: INotification;
-//   isUserConnected: Promise<boolean>;
-// }
+import type { INotification, MessageType } from '../models/types';
 
 let pollingInterval: NodeJS.Timeout | null = null;
+const notificaitonType = new Map<MessageType, string>([
+  ['admission', 'Patient Status'],
+  ['approve', 'Doctor Updates'],
+  ['diagResults', 'Diagnostic Results'],
+  ['pf', "Doctor's Professional Fee"],
+]);
 
 async function postPushNotif(req: Request, res: Response): Promise<void> {
   const { serviceClient, body } = req;
@@ -24,10 +25,15 @@ async function postPushNotif(req: Request, res: Response): Promise<void> {
     if (body.target === 'all') {
       await serviceClient.sendToAll({ title: 'test title', message: body.notification });
     } else {
-      await serviceClient.sendToUser(body.target, { title: 'irving bayot', message: body.notification });
+      await serviceClient.sendToUser(body.target, {
+        title: 'irving bayot',
+        message: body.notification,
+      });
     }
 
-    res.status(StatusCodes.OK).send(resObj('Publishing push notification', { notification: body.notification }));
+    res
+      .status(StatusCodes.OK)
+      .send(resObj('Publishing push notification', { notification: body.notification }));
   } catch (err: any) {
     console.error(err);
     throw new InternalServerError(err.message ?? 'Something went wrong, try again later');
@@ -56,7 +62,8 @@ async function startPolling(req: Request, res: Response): Promise<void> {
 
   try {
     pollingInterval = setInterval(async () => {
-      const pendingNotifications = (await Notif.find({ status: 1 }).select('-__v').lean()) ?? [];
+      const pendingNotifications =
+        (await Notif.find({ status: 1 }).select('-__v').lean()) ?? [];
 
       const filteredNotifications = (
         await Promise.all(
@@ -67,22 +74,17 @@ async function startPolling(req: Request, res: Response): Promise<void> {
         )
       ).filter((item) => item.isUserConnected);
 
-      // console.log(filteredNotifications);
       filteredNotifications.forEach(async (item) => {
-        // await Notif.findByIdAndUpdate(item.notification._id, { status: 2 });
         await req.serviceClient.sendToUser(
           item.notification.recipientId,
           {
-            title: item.notification.messageType,
+            title: notificaitonType.get(item.notification.messageType),
             message: item.notification.message,
           },
           {
             filter: odata`${item.notification.appReceiver} in groups`,
             onResponse: (response) => {
-              if (response.status === 202) {
-                const notificationQuery = updateNotification(item.notification, 2);
-                console.log(notificationQuery);
-              }
+              if (response.status === 202) void updateNotification(item.notification, 2);
             },
           }
         );

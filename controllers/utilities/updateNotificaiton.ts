@@ -2,9 +2,16 @@ import Notification from '../../models/Notification';
 import { BadRequestError, InternalServerError } from '../../errors';
 import type { INotification } from '../../models/types';
 
-async function updateNotification(notification: INotification, status: number = 2): Promise<INotification> {
+async function updateNotification(
+  notification: INotification,
+  status: number = 2
+): Promise<INotification> {
   try {
-    const updatedNotification = await Notification.findByIdAndUpdate(notification._id, { status }, { new: true })
+    const updatedNotification = await Notification.findByIdAndUpdate(
+      notification._id,
+      { status, dateTimeSend: Date.now() },
+      { new: true }
+    )
       .select('-__v')
       .lean();
 
