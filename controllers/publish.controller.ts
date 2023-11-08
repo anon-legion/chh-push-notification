@@ -5,7 +5,7 @@ import { odata } from '@azure/web-pubsub';
 import { InternalServerError } from '../errors';
 import Notif from '../models/Notification';
 import resObj from './utilities/success-response';
-import updateNotification from './utilities/updateNotificaiton';
+import updateNotification from './utilities/update-notificaiton';
 import type { INotification, MessageType } from '../models/types';
 
 let pollingInterval: NodeJS.Timeout | null = null;
@@ -50,9 +50,7 @@ async function getPushNotif(_req: Request, res: Response): Promise<void> {
 }
 
 async function startPolling(req: Request, res: Response): Promise<void> {
-  const {
-    body: { secondsInterval = 3 },
-  } = req;
+  const { secondsInterval = 3 } = req.body;
 
   if (pollingInterval !== null) {
     console.log('**polling already started**');

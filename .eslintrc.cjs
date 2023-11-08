@@ -36,10 +36,10 @@ module.exports = {
     'no-underscore-dangle': 0,
     // eslint-plugin-n unable to resolve import without file extensions bug conflicts with Ts
     'n/no-missing-import': 0,
-    'lines-between-class-members': 'off',
-    '@typescript-eslint/lines-between-class-members': 1,
+    'lines-between-class-members': 0,
+    '@typescript-eslint/lines-between-class-members': 0,
     '@typescript-eslint/no-misused-promises': [
-      'error',
+      2,
       {
         checksVoidReturn: {
           arguments: false,
@@ -47,12 +47,19 @@ module.exports = {
       },
     ],
     '@typescript-eslint/no-unused-vars': [
-      'error',
+      2,
       {
         argsIgnorePattern: '^_',
       },
     ],
-    '@typescript-eslint/strict-boolean-expressions': 1,
+    '@typescript-eslint/strict-boolean-expressions': [
+      2,
+      {
+        allowString: true,
+        allowNumber: true,
+        allowNullableObject: true,
+      },
+    ],
   },
   settings: {
     node: {

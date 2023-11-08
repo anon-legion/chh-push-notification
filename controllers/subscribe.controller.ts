@@ -3,12 +3,16 @@ import { StatusCodes } from 'http-status-codes';
 import AccessToken from '../models/AccessToken';
 import { BadRequestError, InternalServerError } from '../errors';
 import resObj from './utilities/success-response';
+import isTokenExpired from './utilities/token-lifetime';
+
+interface RequestBody {
+  userId: string;
+  app: string;
+}
 
 async function getAccessToken(req: Request, res: Response): Promise<void> {
-  const {
-    serviceClient,
-    body: { userId = '', app = '' },
-  } = req;
+  const { serviceClient } = req;
+  const { userId = '', app = '' }: RequestBody = req.body;
 
   if (!userId || !app) throw new BadRequestError('Missing userId or app');
 
@@ -18,7 +22,7 @@ async function getAccessToken(req: Request, res: Response): Promise<void> {
       .select('-_id accessToken timeStamp')
       .lean();
 
-    if (userAccessToken) {
+    if (userAccessToken && !isTokenExpired(userAccessToken)) {
       res.status(StatusCodes.OK).send(
         resObj('Access token already exists', {
           ...userAccessToken.accessToken,
@@ -28,22 +32,41 @@ async function getAccessToken(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    const token = await serviceClient.getClientAccessToken({
+    const newToken = await serviceClient.getClientAccessToken({
       userId,
       groups: ['all', app],
+      roles: ['joinLeaveGroup'],
+      expirationTimeInMinutes: Number(process.env.TOKEN_LIFE_MINS) ?? 1440,
     });
+
     // token guard clause
-    if (token === null || token === undefined)
+    if (newToken === null || newToken === undefined)
       throw new InternalServerError('Failed to generate access token, try again later');
 
-    const tokenQuery = await AccessToken.create({ userId, app, accessToken: token });
+    // upsert access token
+    const tokenQuery = await AccessToken.findOneAndUpdate(
+      { userId, app },
+      { userId, app, accessToken: newToken, timeStamp: new Date() },
+      {
+        upsert: true,
+        runValidators: true,
+        new: true,
+      }
+    )
+      .select('-_id accessToken timeStamp')
+      .lean();
+    // const tokenQuery = await AccessToken.create({ userId, app, accessToken: newToken });
+
     // db tokenQuery guard clause
     if (tokenQuery === null || tokenQuery === undefined)
       throw new InternalServerError('Something went wrong, try again later');
 
-    res
-      .status(StatusCodes.OK)
-      .send(resObj('Access token generated', { ...token, timeStamp: new Date() }));
+    res.status(StatusCodes.OK).send(
+      resObj('Access token generated', {
+        ...tokenQuery.accessToken,
+        timeStamp: tokenQuery.timeStamp,
+      })
+    );
   } catch (err: any) {
     console.error(err);
     throw new InternalServerError(err.message ?? 'Something went wrong, try again later');

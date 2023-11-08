@@ -11,7 +11,7 @@ export interface IUser {
 }
 
 export type MessageType = 'admission' | 'approve' | 'diagResults' | 'pf';
-type ChhApps = 'doki' | 'nursi' | 'pxi' | 'resi';
+export type ChhApps = 'doki' | 'nursi' | 'pxi' | 'resi';
 type Status = 1 | 2 | 3;
 
 export interface INotification {

@@ -20,9 +20,12 @@ function clean<T extends ValidData>(rawData: ValidData): T {
 
 function xssSanitizer(keys: ValidKeys[] = []) {
   return (req: Request, _res: Response, next: NextFunction) => {
-    if (req.body && (keys.includes('body') || keys.length === 0)) req.body = clean<Request['body']>(req.body);
-    if (req.query && (keys.includes('query') || keys.length === 0)) req.query = clean<Request['query']>(req.query);
-    if (req.params && (keys.includes('params') || keys.length === 0)) req.params = clean<Request['params']>(req.params);
+    if (Boolean(req.body) && (keys.includes('body') || keys.length === 0))
+      req.body = clean<Request['body']>(req.body);
+    if (Boolean(req.query) && (keys.includes('query') || keys.length === 0))
+      req.query = clean<Request['query']>(req.query);
+    if (Boolean(req.params) && (keys.includes('params') || keys.length === 0))
+      req.params = clean<Request['params']>(req.params);
 
     next();
   };
