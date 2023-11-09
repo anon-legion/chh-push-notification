@@ -5,6 +5,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 // import modules
 import mongoose from 'mongoose';
+import morgan from 'morgan';
 import { WebPubSubServiceClient } from '@azure/web-pubsub';
 import authMiddleware from './middlewares/authentication';
 import errorHandlerMiddleware from './middlewares/error-handler';
@@ -30,6 +31,7 @@ app.use(express.json());
 app.use(helmet());
 app.use(cors());
 app.use(xssSanitizer(['body']));
+app.use(morgan('common'));
 app.use((req, _res, next) => {
   req.serviceClient = serviceClient;
   next();

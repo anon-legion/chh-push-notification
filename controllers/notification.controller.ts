@@ -46,15 +46,8 @@ async function populateNotificaiton(_req: Request, res: Response): Promise<void>
         recipientId: randomRecipientId(),
         status: 1,
       }),
-      // Notification.create({
-      //   appReceiver: randomAppReceiver(),
-      //   message: randomMessage(),
-      //   messageType: randomMessageType(),
-      //   recipientId: randomRecipientId(),
-      //   status: 1,
-      // }),
       Notification.create({
-        appReceiver: 'doki',
+        appReceiver: 'pxi',
         message: randomMessage(),
         messageType: randomMessageType(),
         recipientId: '987654321012',
@@ -62,7 +55,9 @@ async function populateNotificaiton(_req: Request, res: Response): Promise<void>
       }),
     ]);
 
-    res.status(StatusCodes.CREATED).send(resObj('Mock data generated', { notif1, notif2, notif3 }));
+    res
+      .status(StatusCodes.CREATED)
+      .send(resObj('Mock data generated', { notif1, notif2, notif3 }));
   } catch (err: any) {
     console.error(err);
     throw new InternalServerError(err.message ?? 'Something went wrong, try again later');
