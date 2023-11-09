@@ -14,15 +14,15 @@ const accessTokenSchema = new Schema<IAccessToken>({
   accessToken: {
     token: {
       type: String,
-      required: [true, 'Access token is required'],
+      required: [true, 'Token is missing'],
     },
     baseUrl: {
       type: String,
-      required: [true, 'Base URL is required'],
+      required: [true, 'Base URL is missing'],
     },
     url: {
       type: String,
-      required: [true, 'URL is required'],
+      required: [true, 'URL is missing'],
     },
   },
   timeStamp: {

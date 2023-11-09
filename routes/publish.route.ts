@@ -1,11 +1,22 @@
-import { Router } from 'express';
-import { getPushNotif, postPushNotif, startPolling, stopPolling } from '../controllers/publish.controller';
+import { Router, type Request, type Response, type NextFunction } from 'express';
+import {
+  getPushNotif,
+  postPushNotif,
+  startPolling,
+  stopPolling,
+} from '../controllers/publish.controller';
 
 const router = Router();
 
 // prettier-ignore
 router.route('/polling')
-  .post(startPolling)
+  .post(
+    (req: Request, _res: Response, next: NextFunction) => {
+      req.body.secondsInterval = Math.abs(Number(req.body.secondsInterval)) || 6;
+      next();
+    },
+    startPolling
+  )
   .get(stopPolling)
 
 // prettier-ignore
