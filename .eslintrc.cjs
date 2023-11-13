@@ -58,6 +58,7 @@ module.exports = {
         allowString: true,
         allowNumber: true,
         allowNullableObject: true,
+        allowNullableString: true,
       },
     ],
   },

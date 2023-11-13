@@ -55,7 +55,7 @@ async function getPushNotif(_req: Request, res: Response): Promise<void> {
 async function startPolling(req: Request, res: Response): Promise<void> {
   const { secondsInterval = 6 } = req.body;
 
-  if (pollingInterval !== null) {
+  if (pollingInterval) {
     console.log('**polling already started**');
     res.status(StatusCodes.OK).send(resObj('Polling already started'));
     return;
@@ -105,7 +105,7 @@ async function startPolling(req: Request, res: Response): Promise<void> {
 }
 
 function stopPolling(_req: Request, res: Response): void {
-  if (pollingInterval === null) {
+  if (!pollingInterval) {
     console.log('**polling already stopped**');
     res.status(StatusCodes.OK).send(resObj('Polling already stopped'));
     return;

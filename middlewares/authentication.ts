@@ -26,7 +26,7 @@ async function authenticate(
       Buffer.from(process.env.JWT_PBLC_KEY ?? '', 'base64').toString('ascii')
     ) as JwtPayload;
     // token validation and expiry guard claues
-    if (!payload || (payload.exp && payload.exp * 1000 < Date.now()))
+    if (payload.exp != null && payload.exp * 1000 < Date.now())
       throw new UnauthenticatedError('Invalid token');
 
     // find user in database

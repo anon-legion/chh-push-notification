@@ -40,7 +40,7 @@ async function getAccessToken(req: Request, res: Response): Promise<void> {
     });
 
     // token guard clause
-    if (newToken === null || newToken === undefined)
+    if (newToken == null)
       throw new InternalServerError('Failed to generate access token, try again later');
 
     // upsert access token
@@ -58,7 +58,7 @@ async function getAccessToken(req: Request, res: Response): Promise<void> {
     // const tokenQuery = await AccessToken.create({ userId, app, accessToken: newToken });
 
     // db tokenQuery guard clause
-    if (tokenQuery === null || tokenQuery === undefined)
+    if (tokenQuery == null)
       throw new InternalServerError('Something went wrong, try again later');
 
     res.status(StatusCodes.OK).send(
