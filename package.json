@@ -8,9 +8,9 @@
   },
   "main": "index.js",
   "scripts": {
-    "build": "npx tsc",
+    "build": "pnpm exec tsc",
     "start": "node --require dotenv/config dist/app.js",
-    "devstart": "concurrently \"npx tsc --watch\" \"nodemon --require dotenv/config -q dist/app.js\""
+    "devstart": "concurrently \"pnpm exec tsc --watch\" \"nodemon --require dotenv/config -q dist/app.js\""
   },
   "keywords": [],
   "author": "GoodApps Inc",
@@ -27,6 +27,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^7.6.3",
     "morgan": "^1.10.0",
+    "winston": "^3.11.0",
     "xss": "^1.0.14"
   },
   "devDependencies": {

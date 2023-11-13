@@ -1,11 +1,11 @@
-/* eslint-disable no-console */
 import type { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { odata } from '@azure/web-pubsub';
 import { InternalServerError } from '../errors';
-import Notif from '../models/Notification';
+import logger from '../logger';
 import resObj from './utilities/success-response';
 import updateNotification from './utilities/update-notificaiton';
+import Notif from '../models/Notification';
 import type { INotification, MessageType } from '../models/types';
 
 let pollingInterval: NodeJS.Timeout | null = null;
@@ -18,8 +18,8 @@ const notificaitonType = new Map<MessageType, string>([
 
 async function postPushNotif(req: Request, res: Response): Promise<void> {
   const { serviceClient, body } = req;
-  console.log(`target: ${body.target}`);
-  console.log(body.notification);
+  logger.info(`target: ${body.target}`);
+  logger.info(body.notification);
 
   try {
     if (body.target === '000000000000') {
@@ -56,7 +56,7 @@ async function startPolling(req: Request, res: Response): Promise<void> {
   const { secondsInterval = 6 } = req.body;
 
   if (pollingInterval) {
-    console.log('**polling already started**');
+    logger.info('**polling already started**');
     res.status(StatusCodes.OK).send(resObj('Polling already started'));
     return;
   }
@@ -96,7 +96,7 @@ async function startPolling(req: Request, res: Response): Promise<void> {
       });
     }, secondsInterval * 1000);
 
-    console.log('POLLING START');
+    logger.info('POLLING START');
     res.status(StatusCodes.OK).send(resObj('Polling start'));
   } catch (err: any) {
     console.error(err);
@@ -106,7 +106,7 @@ async function startPolling(req: Request, res: Response): Promise<void> {
 
 function stopPolling(_req: Request, res: Response): void {
   if (!pollingInterval) {
-    console.log('**polling already stopped**');
+    logger.info('**polling already stopped**');
     res.status(StatusCodes.OK).send(resObj('Polling already stopped'));
     return;
   }
@@ -114,7 +114,7 @@ function stopPolling(_req: Request, res: Response): void {
   clearInterval(pollingInterval);
   pollingInterval = null;
 
-  console.log('POLLING STOP');
+  logger.info('POLLING STOP');
   res.status(StatusCodes.OK).send(resObj('Polling stop'));
 }
 

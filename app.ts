@@ -7,6 +7,7 @@ import helmet from 'helmet';
 import mongoose from 'mongoose';
 import morgan from 'morgan';
 import { WebPubSubServiceClient } from '@azure/web-pubsub';
+import logger from './logger';
 import authMiddleware from './middlewares/authentication';
 import errorHandlerMiddleware from './middlewares/error-handler';
 import notFoundMiddleware from './middlewares/not-found';
@@ -24,7 +25,7 @@ const serviceClient = new WebPubSubServiceClient(
   process.env.AZURE_PUBSUB_CONNSTRING ?? '',
   'notification'
 );
-console.log('serviceClient created');
+logger.info('serviceClient created');
 
 // middlewares
 app.use(express.json());
@@ -55,10 +56,10 @@ async function start(): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     await mongoose.connect(process.env.MDB_URI!, { dbName: 'chh-notification' });
     app.listen(port, () => {
-      console.log(`Server is listening on port [${port}]`);
+      logger.info(`Server is listening on port [${port}]`);
     });
   } catch (e) {
-    console.error(e);
+    logger.error(e);
   }
 }
 
