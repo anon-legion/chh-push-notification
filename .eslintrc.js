@@ -3,14 +3,16 @@ module.exports = {
     es2021: true,
     node: true,
   },
-  plugins: ['import', 'n', 'security'],
+  plugins: ['@typescript-eslint', 'import', 'n', 'promise', 'security'],
   extends: [
-    'standard-with-typescript',
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
     'airbnb-base',
     'airbnb-typescript/base',
-    'plugin:n/recommended',
     'plugin:import/recommended',
     'plugin:import/typescript',
+    'plugin:promise/recommended',
+    'plugin:n/recommended',
     'plugin:security/recommended',
     'prettier',
   ],
@@ -19,7 +21,7 @@ module.exports = {
       env: {
         node: true,
       },
-      files: ['.eslintrc.{js,cjs}'],
+      files: ['.eslintrc.js'],
       parserOptions: {
         sourceType: 'script',
       },
@@ -38,6 +40,7 @@ module.exports = {
     'n/no-missing-import': 0,
     'lines-between-class-members': 0,
     '@typescript-eslint/lines-between-class-members': 0,
+    '@typescript-eslint/no-explicit-any': 0,
     '@typescript-eslint/no-misused-promises': [
       2,
       {
@@ -61,6 +64,9 @@ module.exports = {
         allowNullableString: true,
       },
     ],
+    indent: ['error', 2],
+    'linebreak-style': ['error', 'unix'],
+    semi: ['error', 'always'],
   },
   settings: {
     node: {
@@ -78,9 +84,8 @@ module.exports = {
 };
 
 // eslint packages implemented:
-// -eslint-config-standard-with-typescript
-// 	-@typescript-eslint/eslint-plugin
-// 	-eslint-plugin-promise
+// -@typescript-eslint/eslint-plugin
+// -eslint-plugin-promise
 // -eslint-config-airbnb-typescript
 // 	-eslint-config-airbnb-base
 // -eslint-plugin-import

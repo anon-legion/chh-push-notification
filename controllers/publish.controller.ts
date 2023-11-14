@@ -89,7 +89,7 @@ async function startPolling(req: Request, res: Response): Promise<void> {
             filter: odata`${item.notification.appReceiver} in groups`,
             // update notification status and dateTimeSend on success
             onResponse: (response) => {
-              if (response.status === 202) void updateNotification(item.notification, 2);
+              if (response.status === 202) updateNotification(item.notification, 2);
             },
           }
         );
