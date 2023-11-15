@@ -21,7 +21,6 @@ async function updateNotification(
 
     return updatedNotification;
   } catch (err: any) {
-    // console.error(err);
     throw new InternalServerError(err.message ?? 'Something went wrong, try again later');
   }
 }

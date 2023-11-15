@@ -1,7 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { odata } from '@azure/web-pubsub';
-import { InternalServerError } from '../errors';
 import logger from '../logger';
 import resObj from './utilities/success-response';
 import updateNotification from './utilities/update-notificaiton';
@@ -16,7 +15,7 @@ const notificaitonType = new Map<MessageType, string>([
   ['pf', "Doctor's Professional Fee"],
 ]);
 
-async function postPushNotif(req: Request, res: Response): Promise<void> {
+async function postPushNotif(req: Request, res: Response, next: NextFunction): Promise<void> {
   const { serviceClient, body } = req;
   logger.info(`target: ${body.target}`);
   logger.info(body.notification);
@@ -38,17 +37,15 @@ async function postPushNotif(req: Request, res: Response): Promise<void> {
       .status(StatusCodes.OK)
       .send(resObj('Publishing push notification', { notification: body.notification }));
   } catch (err: any) {
-    // console.error(err);
-    throw new InternalServerError(err.message ?? 'Something went wrong, try again later');
+    next(err);
   }
 }
 
-async function getPushNotif(_req: Request, res: Response): Promise<void> {
+async function getPushNotif(_req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     res.status(StatusCodes.OK).send(resObj('Getting push notifications'));
   } catch (err: any) {
-    // console.error(err);
-    throw new InternalServerError(err.message ?? 'Something went wrong, try again later');
+    next(err);
   }
 }
 

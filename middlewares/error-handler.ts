@@ -34,7 +34,9 @@ const errorHandlerMiddleware = (
   // if error is thrown by express-validator append validationErrors to errorObj
   if (err instanceof InvalidPayloadError) errObj.errors = err.validationErrors;
 
-  logger.error(generateErrLog(err, req));
+  if (err instanceof CustomApiError) logger.warn(generateErrLog(err, req));
+  if (!(err instanceof CustomApiError)) logger.error(generateErrLog(err, req));
+
   res.status(statusCode).json(errObj);
 };
 
