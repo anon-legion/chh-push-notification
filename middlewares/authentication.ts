@@ -4,11 +4,7 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User';
 import { UnauthenticatedError } from '../errors';
 
-async function authenticate(
-  req: Request,
-  _res: Response,
-  next: NextFunction
-): Promise<void> {
+async function authenticate(req: Request, _res: Response, next: NextFunction): Promise<void> {
   const authHeader = req.headers.authorization;
   // authHeader guard clause
   if (!authHeader || !authHeader.startsWith('Bearer '))
@@ -38,7 +34,7 @@ async function authenticate(
     req.user = { userId: user?._id, username: user?.username };
     next();
   } catch (err) {
-    console.error(err);
+    // console.error(err);
     throw new UnauthenticatedError('Authentication invalid');
   }
 }

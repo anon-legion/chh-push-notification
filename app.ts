@@ -27,6 +27,7 @@ const serviceClient = new WebPubSubServiceClient(
 );
 logger.info('serviceClient created');
 
+app.set('trust proxy', 1);
 // middlewares
 app.use(express.json());
 app.use(helmet());

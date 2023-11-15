@@ -64,9 +64,7 @@ module.exports = {
         allowNullableString: true,
       },
     ],
-    indent: ['error', 2],
     'linebreak-style': ['error', 'unix'],
-    semi: ['error', 'always'],
   },
   settings: {
     node: {

@@ -38,7 +38,7 @@ async function postPushNotif(req: Request, res: Response): Promise<void> {
       .status(StatusCodes.OK)
       .send(resObj('Publishing push notification', { notification: body.notification }));
   } catch (err: any) {
-    console.error(err);
+    // console.error(err);
     throw new InternalServerError(err.message ?? 'Something went wrong, try again later');
   }
 }
@@ -47,7 +47,7 @@ async function getPushNotif(_req: Request, res: Response): Promise<void> {
   try {
     res.status(StatusCodes.OK).send(resObj('Getting push notifications'));
   } catch (err: any) {
-    console.error(err);
+    // console.error(err);
     throw new InternalServerError(err.message ?? 'Something went wrong, try again later');
   }
 }
@@ -99,7 +99,7 @@ async function startPolling(req: Request, res: Response): Promise<void> {
     logger.info('POLLING START');
     res.status(StatusCodes.OK).send(resObj('Polling start'));
   } catch (err: any) {
-    console.error(err);
+    // console.error(err);
     throw new InternalServerError(err.message ?? 'Something went wrong, try again later');
   }
 }

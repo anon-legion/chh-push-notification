@@ -59,7 +59,7 @@ async function populateNotificaiton(_req: Request, res: Response): Promise<void>
       .status(StatusCodes.CREATED)
       .send(resObj('Mock data generated', { notif1, notif2, notif3 }));
   } catch (err: any) {
-    console.error(err);
+    // console.error(err);
     throw new InternalServerError(err.message ?? 'Something went wrong, try again later');
   }
 }

@@ -68,7 +68,7 @@ async function getAccessToken(req: Request, res: Response): Promise<void> {
       })
     );
   } catch (err: any) {
-    console.error(err);
+    // console.error(err);
     throw new InternalServerError(err.message ?? 'Something went wrong, try again later');
   }
 }

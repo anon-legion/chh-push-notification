@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
-import type { Request, Response } from 'express';
-import { BadRequestError, InternalServerError, UnauthenticatedError } from '../errors';
+import type { Request, Response, NextFunction } from 'express';
+import { UnauthenticatedError } from '../errors';
 import resObj from './utilities/success-response';
 import User from '../models/User';
 
@@ -10,12 +10,9 @@ interface UserRequestBody {
   password: string;
 }
 
-async function register(req: Request, res: Response): Promise<void> {
+async function register(req: Request, res: Response, next: NextFunction): Promise<void> {
   // destructure payload from req.body
   const { username = '', email = '', password = '' }: UserRequestBody = req.body;
-
-  if (!username || !email || !password)
-    throw new BadRequestError('Please provide username, email, and password');
 
   try {
     // save user to database
@@ -25,15 +22,12 @@ async function register(req: Request, res: Response): Promise<void> {
       .status(StatusCodes.CREATED)
       .send(resObj('User created pending activation', { username: user.username }));
   } catch (err: any) {
-    console.error(err);
-    throw new InternalServerError(err.message ?? 'Something went wrong, try again later');
+    next(err);
   }
 }
 
-async function login(req: Request, res: Response): Promise<void> {
+async function login(req: Request, res: Response, next: NextFunction): Promise<void> {
   const { email = '', password = '' }: UserRequestBody = req.body;
-
-  if (!email || !password) throw new BadRequestError('Please provide email and password');
 
   try {
     // find user in database
@@ -55,8 +49,7 @@ async function login(req: Request, res: Response): Promise<void> {
       .status(StatusCodes.OK)
       .send(resObj('User login succesfful', { username: user.username, token }));
   } catch (err: any) {
-    console.error(err);
-    throw new InternalServerError(err.message ?? 'Something went wrong, try again later');
+    next(err);
   }
 }
 

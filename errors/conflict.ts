@@ -2,7 +2,6 @@ import { StatusCodes } from 'http-status-codes';
 import CustomApiError from './custom-api';
 
 class ConflictError extends CustomApiError {
-  statusCode: StatusCodes;
   errors: string[];
 
   constructor(message: string, errors: string[]) {
