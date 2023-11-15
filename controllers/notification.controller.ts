@@ -1,7 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
-import type { Request, Response } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import Notification from '../models/Notification';
-import { InternalServerError } from '../errors';
 import resObj from './utilities/success-response';
 
 const randomAppReceiver = (): string => {
@@ -29,7 +28,11 @@ const randomMessageType = (): string => {
 
 const randomRecipientId = (): string => String(Math.floor(Math.random() * 1000000000000));
 
-async function populateNotificaiton(_req: Request, res: Response): Promise<void> {
+async function populateNotificaiton(
+  _req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
   try {
     const [notif1, notif2, notif3] = await Promise.all([
       Notification.create({
@@ -59,8 +62,7 @@ async function populateNotificaiton(_req: Request, res: Response): Promise<void>
       .status(StatusCodes.CREATED)
       .send(resObj('Mock data generated', { notif1, notif2, notif3 }));
   } catch (err: any) {
-    // console.error(err);
-    throw new InternalServerError(err.message ?? 'Something went wrong, try again later');
+    next(err);
   }
 }
 

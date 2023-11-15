@@ -1,4 +1,4 @@
-import type { Request, Response } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { odata } from '@azure/web-pubsub';
 import { InternalServerError } from '../errors';
@@ -52,7 +52,7 @@ async function getPushNotif(_req: Request, res: Response): Promise<void> {
   }
 }
 
-async function startPolling(req: Request, res: Response): Promise<void> {
+async function startPolling(req: Request, res: Response, next: NextFunction): Promise<void> {
   const { secondsInterval = 6 } = req.body;
 
   if (pollingInterval) {
@@ -99,8 +99,7 @@ async function startPolling(req: Request, res: Response): Promise<void> {
     logger.info('POLLING START');
     res.status(StatusCodes.OK).send(resObj('Polling start'));
   } catch (err: any) {
-    // console.error(err);
-    throw new InternalServerError(err.message ?? 'Something went wrong, try again later');
+    next(err);
   }
 }
 

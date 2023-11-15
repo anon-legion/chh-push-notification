@@ -10,7 +10,7 @@ interface RequestBody {
   app: string;
 }
 
-async function getAccessToken(req: Request, res: Response, next: NextFunction): Promise<void> {
+async function genAccessToken(req: Request, res: Response, next: NextFunction): Promise<void> {
   const { serviceClient } = req;
   const { userId = '', app = '' }: RequestBody = req.body;
 
@@ -70,4 +70,4 @@ async function getAccessToken(req: Request, res: Response, next: NextFunction): 
   }
 }
 
-export default getAccessToken;
+export default genAccessToken;

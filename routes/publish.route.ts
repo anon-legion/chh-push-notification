@@ -1,7 +1,7 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import {
-  getPushNotif,
-  postPushNotif,
+  // getPushNotif,
+  // postPushNotif,
   startPolling,
   stopPolling,
 } from '../controllers/publish.controller';
@@ -19,9 +19,9 @@ router.route('/polling')
   )
   .get(stopPolling)
 
-// prettier-ignore
-router.route('/')
-  .post(postPushNotif)
-  .get(getPushNotif);
+// // prettier-ignore
+// router.route('/')
+//   .post(postPushNotif)
+//   .get(getPushNotif);
 
 export default router;

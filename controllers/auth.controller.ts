@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 import type { Request, Response, NextFunction } from 'express';
-import { UnauthenticatedError } from '../errors';
+import { InternalServerError, UnauthenticatedError } from '../errors';
 import resObj from './utilities/success-response';
 import User from '../models/User';
 
@@ -17,6 +17,9 @@ async function register(req: Request, res: Response, next: NextFunction): Promis
   try {
     // save user to database
     const user = await User.create({ username, email, password });
+
+    if (user == null || Object.keys(user).length === 0)
+      throw new InternalServerError('Invalid user credentials');
 
     res
       .status(StatusCodes.CREATED)
@@ -47,7 +50,7 @@ async function login(req: Request, res: Response, next: NextFunction): Promise<v
 
     res
       .status(StatusCodes.OK)
-      .send(resObj('User login succesfful', { username: user.username, token }));
+      .send(resObj('User login successful', { username: user.username, token }));
   } catch (err: any) {
     next(err);
   }
