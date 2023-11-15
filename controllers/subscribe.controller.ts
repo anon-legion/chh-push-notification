@@ -1,7 +1,7 @@
-import type { Request, Response } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import AccessToken from '../models/AccessToken';
-import { BadRequestError, InternalServerError } from '../errors';
+import { InternalServerError } from '../errors';
 import resObj from './utilities/success-response';
 import isTokenExpired from './utilities/token-lifetime';
 
@@ -10,11 +10,9 @@ interface RequestBody {
   app: string;
 }
 
-async function getAccessToken(req: Request, res: Response): Promise<void> {
+async function getAccessToken(req: Request, res: Response, next: NextFunction): Promise<void> {
   const { serviceClient } = req;
   const { userId = '', app = '' }: RequestBody = req.body;
-
-  if (!userId || !app) throw new BadRequestError('Missing userId or app');
 
   try {
     // check if access token already exists
@@ -40,7 +38,7 @@ async function getAccessToken(req: Request, res: Response): Promise<void> {
     });
 
     // token guard clause
-    if (newToken == null)
+    if (newToken == null || Object.keys(newToken).length === 0)
       throw new InternalServerError('Failed to generate access token, try again later');
 
     // upsert access token
@@ -58,7 +56,7 @@ async function getAccessToken(req: Request, res: Response): Promise<void> {
     // const tokenQuery = await AccessToken.create({ userId, app, accessToken: newToken });
 
     // db tokenQuery guard clause
-    if (tokenQuery == null)
+    if (tokenQuery == null || Object.keys(tokenQuery).length === 0)
       throw new InternalServerError('Something went wrong, try again later');
 
     res.status(StatusCodes.OK).send(
@@ -68,8 +66,7 @@ async function getAccessToken(req: Request, res: Response): Promise<void> {
       })
     );
   } catch (err: any) {
-    // console.error(err);
-    throw new InternalServerError(err.message ?? 'Something went wrong, try again later');
+    next(err);
   }
 }
 
