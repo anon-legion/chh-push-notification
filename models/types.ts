@@ -39,3 +39,15 @@ export interface IAccessToken {
   accessToken: IToken;
   timeStamp: Date;
 }
+
+export type TLog = {
+  _id: Types.ObjectId;
+  body: Body;
+  ip: string;
+  level: string;
+  message: string;
+  method: string;
+  path: string;
+  stack: string[];
+  timestamp: Date;
+};
