@@ -42,18 +42,25 @@ async function populateNotificaiton(
         recipientId: randomRecipientId(),
         status: 1,
       }),
-      Notification.create({
-        appReceiver: randomAppReceiver(),
-        message: randomMessage(),
-        messageType: randomMessageType(),
-        recipientId: randomRecipientId(),
-        status: 1,
-      }),
+      // Notification.create({
+      //   appReceiver: randomAppReceiver(),
+      //   message: randomMessage(),
+      //   messageType: randomMessageType(),
+      //   recipientId: randomRecipientId(),
+      //   status: 1,
+      // }),
       Notification.create({
         appReceiver: 'pxi',
         message: randomMessage(),
         messageType: randomMessageType(),
         recipientId: '987654321012',
+        status: 1,
+      }),
+      Notification.create({
+        appReceiver: 'doki',
+        message: randomMessage(),
+        messageType: randomMessageType(),
+        recipientId: '123456789123',
         status: 1,
       }),
     ]);

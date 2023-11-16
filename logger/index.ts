@@ -16,6 +16,7 @@ function generateLogger(env: string): Logger {
   return loggerModule ?? devLogger();
 }
 
+console.log(process.env.NODE_ENV);
 const logger = generateLogger(process.env.NODE_ENV ?? 'dev');
 
 export default logger;
