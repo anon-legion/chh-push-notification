@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
-import { TLog } from './types';
+import { ILog } from './types';
 
-const logSchema = new Schema<TLog>({
+const logSchema = new Schema<ILog>({
   body: {
     type: Object,
     required: false,
@@ -27,7 +27,7 @@ const logSchema = new Schema<TLog>({
     required: false,
   },
   stack: {
-    type: Array(String),
+    type: [String],
     required: false,
   },
   timestamp: {
@@ -36,6 +36,6 @@ const logSchema = new Schema<TLog>({
   },
 });
 
-const Log = model<TLog>('Log', logSchema);
+const Log = model<ILog>('Log', logSchema);
 
 export default Log;

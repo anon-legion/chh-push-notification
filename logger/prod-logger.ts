@@ -1,12 +1,10 @@
 import winston, { type Logger } from 'winston';
+import MongooseTransport from './mongoose-transport';
 
 const { combine, json, printf, timestamp } = winston.format;
 const infoFilter = winston.format((info) => (info.level === 'info' ? info : false));
-// const warnFilter = winston.format((info) => (info.level === 'warn' ? info : false));
-// const errorFilter = winston.format((info) => (info.level === 'error' ? info : false));
-const warnErrorFilter = winston.format((info) =>
-  info.level === 'error' || info.level === 'warn' ? info : false
-);
+const warnFilter = winston.format((info) => (info.level === 'warn' ? info : false));
+const errorFilter = winston.format((info) => (info.level === 'error' ? info : false));
 
 const logger: () => Logger = () =>
   winston.createLogger({
@@ -24,7 +22,7 @@ const logger: () => Logger = () =>
       new winston.transports.Console({
         level: 'warn',
         format: combine(
-          warnErrorFilter(),
+          warnFilter(),
           timestamp(),
           printf(
             (info) =>
@@ -34,11 +32,10 @@ const logger: () => Logger = () =>
           )
         ),
       }),
-      // new winston.transports.File({
-      //   filename: './error.log',
-      //   level: 'warn',
-      //   format: combine(errorFilter(), timestamp(), json()),
-      // }),
+      new MongooseTransport({
+        level: 'error',
+        format: errorFilter(),
+      }),
     ],
     exitOnError: false,
   });

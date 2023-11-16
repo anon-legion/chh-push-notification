@@ -40,7 +40,7 @@ export interface IAccessToken {
   timeStamp: Date;
 }
 
-export type TLog = {
+export type ILog = {
   _id: Types.ObjectId;
   body: Body;
   ip: string;

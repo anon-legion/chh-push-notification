@@ -1,6 +1,4 @@
-// import mongoose from 'mongoose';
 import winston, { type Logger } from 'winston';
-import 'winston-mongodb';
 
 const { combine, json, printf, timestamp, errors } = winston.format;
 const infoFilter = winston.format((info) => (info.level === 'info' ? info : false));
