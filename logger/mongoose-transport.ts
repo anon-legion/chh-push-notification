@@ -1,6 +1,7 @@
 import Transport from 'winston-transport';
 import { LogEntry } from 'winston';
 import Log from '../models/Log';
+import { InternalServerError } from '../errors';
 
 class MongooseTransport extends Transport {
   async log(info: LogEntry, callback: () => void) {
@@ -8,20 +9,23 @@ class MongooseTransport extends Transport {
       this.emit('logged', info);
     });
 
-    const logEntry = await Log.create({
-      body: info.body,
-      ip: info.ip,
-      level: info.level,
-      message: info.message,
-      method: info.method,
-      path: info.path,
-      stack: info.stack,
-      timestamp: info.timestamp,
-    });
+    try {
+      const logEntry = await Log.create({
+        body: info.body,
+        ip: info.ip,
+        level: info.level,
+        message: info.message,
+        method: info.method,
+        path: info.path,
+        stack: info.stack,
+        timestamp: info.timestamp,
+      });
 
-    console.log('----logEntry----');
-    console.log(logEntry);
-    console.log('------saved------');
+      if (logEntry == null || Object.keys(logEntry).length === 0)
+        throw new InternalServerError('Error transporting log to database');
+    } catch (err) {
+      throw new InternalServerError('Error transporting log to database');
+    }
 
     callback();
   }
