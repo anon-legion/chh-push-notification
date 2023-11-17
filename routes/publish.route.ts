@@ -1,10 +1,5 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
-import {
-  // getPushNotif,
-  // postPushNotif,
-  startPolling,
-  stopPolling,
-} from '../controllers/publish.controller';
+import { startPolling, stopPolling } from '../controllers/publish.controller';
 
 const router = Router();
 

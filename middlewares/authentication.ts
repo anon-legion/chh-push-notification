@@ -1,8 +1,8 @@
+import jwt from 'jsonwebtoken';
+import { UnauthenticatedError } from '../errors';
+import User from '../models/User';
 import type { Request, Response, NextFunction } from 'express';
 import type { JwtPayload } from 'jsonwebtoken';
-import jwt from 'jsonwebtoken';
-import User from '../models/User';
-import { UnauthenticatedError } from '../errors';
 
 async function authenticate(req: Request, _res: Response, next: NextFunction): Promise<void> {
   const authHeader = req.headers.authorization;

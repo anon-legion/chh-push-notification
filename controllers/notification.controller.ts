@@ -1,7 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
-import type { Request, Response, NextFunction } from 'express';
 import Notification from '../models/Notification';
 import resObj from './utilities/success-response';
+import type { Request, Response, NextFunction } from 'express';
 
 const randomAppReceiver = (): string => {
   const apps = ['doki', 'nursi', 'pxi', 'resi'];

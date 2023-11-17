@@ -35,6 +35,16 @@ module.exports = {
   },
   root: true,
   rules: {
+    'import/order': [
+      2,
+      {
+        alphabetize: {
+          order: 'asc',
+        },
+        groups: ['external', 'builtin', 'internal', 'parent', 'sibling', 'index', 'type'],
+        'newlines-between': 'ignore',
+      },
+    ],
     'no-underscore-dangle': 0,
     // eslint-plugin-n unable to resolve import without file extensions bug conflicts with Ts
     'n/no-missing-import': 0,

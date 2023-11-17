@@ -1,11 +1,11 @@
-import type { Request, Response, NextFunction } from 'express';
-import { StatusCodes } from 'http-status-codes';
 import { odata } from '@azure/web-pubsub';
+import { StatusCodes } from 'http-status-codes';
 import logger from '../logger';
+import Notif from '../models/Notification';
 import resObj from './utilities/success-response';
 import updateNotification from './utilities/update-notificaiton';
-import Notif from '../models/Notification';
 import type { INotification, MessageType } from '../models/types';
+import type { Request, Response, NextFunction } from 'express';
 
 let pollingInterval: NodeJS.Timeout | null = null;
 const notificaitonType = new Map<MessageType, string>([

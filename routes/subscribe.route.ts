@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import genAcessToken from '../controllers/subscribe.controller';
-import baseStrValidation from './utils/base-str-validation';
 import validationErrorHandler from '../middlewares/validation-error-handler';
+import baseStrValidation from './utils/base-str-validation';
 
 const router = Router();
 

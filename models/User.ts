@@ -1,6 +1,6 @@
-import { Schema, model, type Document, type MongooseError } from 'mongoose';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { Schema, model, type Document, type MongooseError } from 'mongoose';
 import { ConflictError, InternalServerError } from '../errors';
 import type { IUser } from './types';
 
@@ -41,13 +41,16 @@ userSchema.pre<IUser>('save', async function hashPassword() {
 });
 
 // post-save mongoose middleware to handle duplicate key error
-userSchema.post<IUser>('save', (err: MongooseError, _doc: Document, next: (err?: MongooseError) => void) => {
-  if (err.name === 'MongoServerError' && err.message.includes('E11000')) {
-    next(new ConflictError('Duplicate key error, value already exists', ['email']));
-  } else {
-    next();
+userSchema.post<IUser>(
+  'save',
+  (err: MongooseError, _doc: Document, next: (err?: MongooseError) => void) => {
+    if (err.name === 'MongoServerError' && err.message.includes('E11000')) {
+      next(new ConflictError('Duplicate key error, value already exists', ['email']));
+    } else {
+      next();
+    }
   }
-});
+);
 
 // schema method to generate token
 userSchema.methods.createJwt = function createJwt() {

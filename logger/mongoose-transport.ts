@@ -1,7 +1,7 @@
-import Transport from 'winston-transport';
 import { LogEntry } from 'winston';
-import Log from '../models/Log';
+import Transport from 'winston-transport';
 import { InternalServerError } from '../errors';
+import Log from '../models/Log';
 
 class MongooseTransport extends Transport {
   async log(info: LogEntry, callback: () => void) {

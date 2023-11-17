@@ -1,9 +1,9 @@
-import type { Request, Response, NextFunction } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import AccessToken from '../models/AccessToken';
 import { InternalServerError } from '../errors';
+import AccessToken from '../models/AccessToken';
 import resObj from './utilities/success-response';
 import isTokenExpired from './utilities/token-lifetime';
+import type { Request, Response, NextFunction } from 'express';
 
 interface RequestBody {
   userId: string;

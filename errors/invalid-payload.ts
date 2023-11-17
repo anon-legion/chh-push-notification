@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
-import type { ValidationError } from 'express-validator';
 import CustomApiError from './custom-api';
+import type { ValidationError } from 'express-validator';
 
 class InvalidPayloadError extends CustomApiError {
   validationErrors: ValidationError[];

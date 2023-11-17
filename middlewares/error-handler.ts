@@ -1,9 +1,9 @@
-import type { Request, Response, NextFunction } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { ConflictError, InvalidPayloadError } from '../errors';
 import CustomApiError from '../errors/custom-api';
 import logger from '../logger';
 import generateErrLog from './utils/log-generator';
+import type { Request, Response, NextFunction } from 'express';
 
 interface ErrorResponse {
   message: string;

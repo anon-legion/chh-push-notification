@@ -1,6 +1,6 @@
-import type { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
-import { InvalidPayloadError } from '../errors/index.js';
+import { InvalidPayloadError } from '../errors';
+import type { Request, Response, NextFunction } from 'express';
 
 const expressValidatorHandler = (req: Request, res: Response, next: NextFunction) => {
   const result = validationResult(req).array();

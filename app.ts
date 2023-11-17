@@ -1,26 +1,31 @@
+import { NotificationHubsClient } from '@azure/notification-hubs';
+import { WebPubSubServiceClient } from '@azure/web-pubsub';
+import cors from 'cors';
 import express, { type Response } from 'express';
 import 'express-async-errors'; // import immediately to patch express
-// import security packages
-import cors from 'cors';
 import helmet from 'helmet';
-// import modules
 import mongoose from 'mongoose';
 import morgan from 'morgan';
-import { WebPubSubServiceClient } from '@azure/web-pubsub';
+
 import logger from './logger';
 import authMiddleware from './middlewares/authentication';
 import errorHandlerMiddleware from './middlewares/error-handler';
 import notFoundMiddleware from './middlewares/not-found';
 import xssSanitizer from './middlewares/xss-sanitzer';
 import authRouter from './routes/auth.route';
+import mockDataRouter from './routes/mock-data.route';
 import publishRouter from './routes/publish.route';
 import subscribeRouter from './routes/subscribe.route';
-import mockDataRouter from './routes/mock-data.route';
 
 // initialize express
 const app = express();
 const port = process.env.PORT ?? 3000;
 
+const notificationClient = new NotificationHubsClient(
+  process.env.AZURE_NOTIFHUB_CONNSTRING ?? '',
+  'chh-pns'
+);
+// delete once notification hub is sucessfully implemented
 const serviceClient = new WebPubSubServiceClient(
   process.env.AZURE_PUBSUB_CONNSTRING ?? '',
   'notification'
@@ -36,6 +41,7 @@ app.use(xssSanitizer(['body']));
 app.use(morgan('common'));
 app.use((req, _res, next) => {
   req.serviceClient = serviceClient;
+  req.notifHubClient = notificationClient;
   next();
 });
 

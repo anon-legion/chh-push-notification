@@ -1,5 +1,5 @@
-import Notification from '../../models/Notification';
 import { BadRequestError, InternalServerError } from '../../errors';
+import Notification from '../../models/Notification';
 import type { INotification } from '../../models/types';
 
 async function updateNotification(

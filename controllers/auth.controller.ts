@@ -1,8 +1,8 @@
 import { StatusCodes } from 'http-status-codes';
-import type { Request, Response, NextFunction } from 'express';
 import { InternalServerError, UnauthenticatedError } from '../errors';
-import resObj from './utilities/success-response';
 import User from '../models/User';
+import resObj from './utilities/success-response';
+import type { Request, Response, NextFunction } from 'express';
 
 interface UserRequestBody {
   username: string;
