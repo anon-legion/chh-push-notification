@@ -1,4 +1,3 @@
-import { NotificationHubsClient } from '@azure/notification-hubs';
 import { WebPubSubServiceClient } from '@azure/web-pubsub';
 import cors from 'cors';
 import express, { type Response } from 'express';
@@ -6,6 +5,7 @@ import 'express-async-errors'; // import immediately to patch express
 import helmet from 'helmet';
 import mongoose from 'mongoose';
 import morgan from 'morgan';
+import webpush from 'web-push';
 
 import logger from './logger';
 import authMiddleware from './middlewares/authentication';
@@ -21,10 +21,23 @@ import subscribeRouter from './routes/subscribe.route';
 const app = express();
 const port = process.env.PORT ?? 3000;
 
-const notificationClient = new NotificationHubsClient(
-  process.env.AZURE_NOTIFHUB_CONNSTRING ?? '',
-  'chh-pns'
+let vapidKeys = {
+  publicKey: process.env.VAPID_PBLC_KEY ?? '',
+  privateKey: process.env.VAPID_PRVT_KEY ?? '',
+};
+
+if (!vapidKeys.publicKey || !vapidKeys.privateKey) {
+  vapidKeys = webpush.generateVAPIDKeys();
+  logger.info('VAPID keys generated');
+}
+
+webpush.setGCMAPIKey(process.env.GCM_API_KEY ?? '');
+webpush.setVapidDetails(
+  'mailto:chh_pns@goodappsinc.com',
+  vapidKeys.publicKey,
+  vapidKeys.privateKey
 );
+
 // delete once notification hub is sucessfully implemented
 const serviceClient = new WebPubSubServiceClient(
   process.env.AZURE_PUBSUB_CONNSTRING ?? '',
@@ -41,7 +54,8 @@ app.use(xssSanitizer(['body']));
 app.use(morgan('common'));
 app.use((req, _res, next) => {
   req.serviceClient = serviceClient;
-  req.notifHubClient = notificationClient;
+  req.webpush = webpush;
+  req.webpush.vapidKeys = vapidKeys;
   next();
 });
 

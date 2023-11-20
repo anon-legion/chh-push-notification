@@ -70,4 +70,9 @@ async function genAccessToken(req: Request, res: Response, next: NextFunction): 
   }
 }
 
-export default genAccessToken;
+function getServerPubKey(req: Request, res: Response): void {
+  const { publicKey } = req.webpush.vapidKeys;
+  res.status(StatusCodes.OK).send(resObj('VAPID keys retrieved', { publicKey }));
+}
+
+export { genAccessToken, getServerPubKey };

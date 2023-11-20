@@ -16,7 +16,6 @@
   "author": "GoodApps Inc",
   "license": "ISC",
   "dependencies": {
-    "@azure/notification-hubs": "^1.0.3",
     "@azure/web-pubsub": "^1.1.1",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
@@ -41,6 +40,7 @@
     "@types/jsonwebtoken": "^9.0.4",
     "@types/morgan": "^1.9.9",
     "@types/node": "^20.8.6",
+    "@types/web-push": "^3.6.3",
     "@typescript-eslint/eslint-plugin": "6.11.0",
     "@typescript-eslint/parser": "6.11.0",
     "concurrently": "^8.2.1",

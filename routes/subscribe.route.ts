@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import genAcessToken from '../controllers/subscribe.controller';
+import { genAccessToken, getServerPubKey } from '../controllers/subscribe.controller';
 import validationErrorHandler from '../middlewares/validation-error-handler';
 import baseStrValidation from './utils/base-str-validation';
 
@@ -11,7 +11,8 @@ router.route('/')
     baseStrValidation('userId'),
     baseStrValidation('app'),
     validationErrorHandler,
-    genAcessToken
-  );
+    genAccessToken
+  )
+  .get(getServerPubKey)
 
 export default router;
