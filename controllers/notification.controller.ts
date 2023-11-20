@@ -73,4 +73,38 @@ async function populateNotificaiton(
   }
 }
 
+// async function postPushNotif(req: Request, res: Response, next: NextFunction): Promise<void> {
+//   const { serviceClient, body } = req;
+//   logger.info(`target: ${body.target}`);
+//   logger.info(body.notification);
+
+//   try {
+//     if (body.target === '000000000000') {
+//       await serviceClient.sendToAll({
+//         title: 'Notification for all',
+//         message: body.notification,
+//       });
+//     } else {
+//       await serviceClient.sendToUser(body.target, {
+//         title: `Notification for ${body.target}`,
+//         message: body.notification,
+//       });
+//     }
+
+//     res
+//       .status(StatusCodes.OK)
+//       .send(resObj('Publishing push notification', { notification: body.notification }));
+//   } catch (err: any) {
+//     next(err);
+//   }
+// }
+
+// async function getPushNotif(_req: Request, res: Response, next: NextFunction): Promise<void> {
+//   try {
+//     res.status(StatusCodes.OK).send(resObj('Getting push notifications'));
+//   } catch (err: any) {
+//     next(err);
+//   }
+// }
+
 export default populateNotificaiton;

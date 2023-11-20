@@ -45,20 +45,6 @@ export interface ISubscription {
   timeStamp: Date;
 }
 
-interface Token {
-  token: string;
-  baseUrl: string;
-  url: string;
-}
-
-export interface IAccessToken {
-  _id: Types.ObjectId;
-  userId: string;
-  app: ChhApps;
-  accessToken: Token;
-  timeStamp: Date;
-}
-
 export type ILog = {
   _id: Types.ObjectId;
   body: Body;

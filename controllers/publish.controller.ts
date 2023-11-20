@@ -1,11 +1,20 @@
-import { odata } from '@azure/web-pubsub';
 import { StatusCodes } from 'http-status-codes';
 import logger from '../logger';
 import Notif from '../models/Notification';
+import Subscription from '../models/Subscription';
 import resObj from './utilities/success-response';
-import updateNotification from './utilities/update-notificaiton';
-import type { INotification, MessageType } from '../models/types';
+// import updateNotification from './utilities/update-notificaiton';
+import type {
+  INotification,
+  MessageType,
+  Subscription as ISubscription,
+} from '../models/types';
 import type { Request, Response, NextFunction } from 'express';
+
+interface IFilteredNotification {
+  notification: INotification;
+  subscription: ISubscription;
+}
 
 let pollingInterval: NodeJS.Timeout | null = null;
 const notificaitonType = new Map<MessageType, string>([
@@ -15,41 +24,8 @@ const notificaitonType = new Map<MessageType, string>([
   ['pf', "Doctor's Professional Fee"],
 ]);
 
-async function postPushNotif(req: Request, res: Response, next: NextFunction): Promise<void> {
-  const { serviceClient, body } = req;
-  logger.info(`target: ${body.target}`);
-  logger.info(body.notification);
-
-  try {
-    if (body.target === '000000000000') {
-      await serviceClient.sendToAll({
-        title: 'Notification for all',
-        message: body.notification,
-      });
-    } else {
-      await serviceClient.sendToUser(body.target, {
-        title: `Notification for ${body.target}`,
-        message: body.notification,
-      });
-    }
-
-    res
-      .status(StatusCodes.OK)
-      .send(resObj('Publishing push notification', { notification: body.notification }));
-  } catch (err: any) {
-    next(err);
-  }
-}
-
-async function getPushNotif(_req: Request, res: Response, next: NextFunction): Promise<void> {
-  try {
-    res.status(StatusCodes.OK).send(resObj('Getting push notifications'));
-  } catch (err: any) {
-    next(err);
-  }
-}
-
 async function startPolling(req: Request, res: Response, next: NextFunction): Promise<void> {
+  const { webpush } = req;
   const { secondsInterval = 6 } = req.body;
 
   if (pollingInterval) {
@@ -65,32 +41,44 @@ async function startPolling(req: Request, res: Response, next: NextFunction): Pr
         (await Notif.find({ status: 1 }).select('-__v').lean()) ?? [];
 
       // check if recipient is connected
-      const filteredNotifications = (
+      const filteredNotifications: IFilteredNotification[] = (
         await Promise.all(
           pendingNotifications.map(async (notif: INotification) => {
-            const isUserConnected = await req.serviceClient.userExists(notif.recipientId);
-            return { notification: notif, isUserConnected };
+            // const isUserConnected = await req.serviceClient.userExists(notif.recipientId);
+            const subscriptionQuery = await Subscription.findOne({
+              userId: notif.recipientId,
+              app: notif.appReceiver,
+            }).select('-_id -__v');
+            return {
+              notification: notif,
+              subscription: (subscriptionQuery
+                ? subscriptionQuery.subscription
+                : {}) as ISubscription,
+            };
           })
         )
-      ).filter((item) => item.isUserConnected);
+      ).filter((item) => Object.keys(item.subscription).length !== 0);
 
+      console.log('----filteredNotifications----');
+      console.log(filteredNotifications);
+      console.log('----filteredNotifications----');
+      // send notification to connected users
       filteredNotifications.forEach(async (item) => {
+        const notification = {
+          title: notificaitonType.get(item.notification.messageType),
+          message: item.notification.message,
+        };
+        console.log('----notification----');
+        console.log(notification);
+        console.log('----notification----');
         // send notification to connected users
-        await req.serviceClient.sendToUser(
-          item.notification.recipientId,
-          {
-            title: notificaitonType.get(item.notification.messageType),
-            message: item.notification.message,
-          },
-          {
-            filter: odata`${item.notification.appReceiver} in groups`,
-            // update notification status and dateTimeSend on success
-            onResponse: (response) => {
-              if (response.status === 202) updateNotification(item.notification, 2);
-            },
-          }
-        );
+        try {
+          await webpush.sendNotification(item.subscription, JSON.stringify(notification));
+        } catch (err) {
+          next(err);
+        }
       });
+      // update notifications of notification was successfully sent
     }, secondsInterval * 1000);
 
     logger.info('POLLING START');
@@ -114,4 +102,4 @@ function stopPolling(_req: Request, res: Response): void {
   res.status(StatusCodes.OK).send(resObj('Polling stop'));
 }
 
-export { postPushNotif, getPushNotif, startPolling, stopPolling };
+export { startPolling, stopPolling };

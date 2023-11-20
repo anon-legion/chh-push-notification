@@ -24,20 +24,20 @@ async function postSubcription(req: Request, res: Response, next: NextFunction):
   const { userId = '', app = '', subscription = defaultSubObj }: RequestBody = req.body;
 
   try {
-    // check if access token already exists
-    const userSubscription = await Subscription.findOne({ userId, app })
-      .select('-_id accessToken timeStamp')
-      .lean();
+    // // check if access token already exists
+    // const userSubscription = await Subscription.findOne({ userId, app })
+    //   .select('-_id accessToken timeStamp')
+    //   .lean();
 
-    if (userSubscription) {
-      res.status(StatusCodes.OK).send(
-        resObj('Existing subscription found', {
-          ...userSubscription.subscription,
-          timeStamp: userSubscription.timeStamp,
-        })
-      );
-      return;
-    }
+    // if (userSubscription) {
+    //   res.status(StatusCodes.OK).send(
+    //     resObj('Existing subscription found', {
+    //       ...userSubscription.subscription,
+    //       timeStamp: userSubscription.timeStamp,
+    //     })
+    //   );
+    //   return;
+    // }
 
     // upsert access token
     const subscriptionQuery = await Subscription.findOneAndUpdate(
