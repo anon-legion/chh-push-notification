@@ -1,50 +1,48 @@
 import { StatusCodes } from 'http-status-codes';
 import { InternalServerError } from '../errors';
-import AccessToken from '../models/AccessToken';
+import Subscription from '../models/Subscription';
 import resObj from './utilities/success-response';
-import isTokenExpired from './utilities/token-lifetime';
+import type { Subscription as ISubscription } from '../models/types';
 import type { Request, Response, NextFunction } from 'express';
 
 interface RequestBody {
   userId: string;
   app: string;
+  subscription: ISubscription;
 }
 
-async function genAccessToken(req: Request, res: Response, next: NextFunction): Promise<void> {
-  const { serviceClient } = req;
-  const { userId = '', app = '' }: RequestBody = req.body;
+const defaultSubObj = {
+  endpoint: '',
+  expirationTime: null,
+  keys: {
+    auth: '',
+    p256dh: '',
+  },
+};
+
+async function postSubcription(req: Request, res: Response, next: NextFunction): Promise<void> {
+  const { userId = '', app = '', subscription = defaultSubObj }: RequestBody = req.body;
 
   try {
     // check if access token already exists
-    const userAccessToken = await AccessToken.findOne({ userId, app })
+    const userSubscription = await Subscription.findOne({ userId, app })
       .select('-_id accessToken timeStamp')
       .lean();
 
-    if (userAccessToken && !isTokenExpired(userAccessToken)) {
+    if (userSubscription) {
       res.status(StatusCodes.OK).send(
-        resObj('Access token already exists', {
-          ...userAccessToken.accessToken,
-          timeStamp: userAccessToken.timeStamp,
+        resObj('Existing subscription found', {
+          ...userSubscription.subscription,
+          timeStamp: userSubscription.timeStamp,
         })
       );
       return;
     }
 
-    const newToken = await serviceClient.getClientAccessToken({
-      userId,
-      groups: ['all', app],
-      roles: ['joinLeaveGroup'],
-      expirationTimeInMinutes: Number(process.env.TOKEN_LIFE_MINS) ?? 1440,
-    });
-
-    // token guard clause
-    if (newToken == null || Object.keys(newToken).length === 0)
-      throw new InternalServerError('Failed to generate access token, try again later');
-
     // upsert access token
-    const tokenQuery = await AccessToken.findOneAndUpdate(
+    const subscriptionQuery = await Subscription.findOneAndUpdate(
       { userId, app },
-      { userId, app, accessToken: newToken, timeStamp: new Date() },
+      { userId, app, subscription, timeStamp: new Date() },
       {
         upsert: true,
         runValidators: true,
@@ -53,16 +51,15 @@ async function genAccessToken(req: Request, res: Response, next: NextFunction): 
     )
       .select('-_id accessToken timeStamp')
       .lean();
-    // const tokenQuery = await AccessToken.create({ userId, app, accessToken: newToken });
 
-    // db tokenQuery guard clause
-    if (tokenQuery == null || Object.keys(tokenQuery).length === 0)
+    // db subscriptionQuery guard clause
+    if (subscriptionQuery == null || Object.keys(subscriptionQuery).length === 0)
       throw new InternalServerError('Something went wrong, try again later');
 
     res.status(StatusCodes.OK).send(
-      resObj('Access token generated', {
-        ...tokenQuery.accessToken,
-        timeStamp: tokenQuery.timeStamp,
+      resObj('New subscription successful', {
+        ...subscriptionQuery.subscription,
+        timeStamp: subscriptionQuery.timeStamp,
       })
     );
   } catch (err: any) {
@@ -75,4 +72,4 @@ function getServerPubKey(req: Request, res: Response): void {
   res.status(StatusCodes.OK).send(resObj('VAPID keys retrieved', { publicKey }));
 }
 
-export { genAccessToken, getServerPubKey };
+export { postSubcription, getServerPubKey };

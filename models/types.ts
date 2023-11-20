@@ -26,7 +26,26 @@ export interface INotification {
   urlRedirect: string | null;
 }
 
-interface IToken {
+interface Keys {
+  auth: string;
+  p256dh: string;
+}
+
+export interface Subscription {
+  endpoint: string;
+  expirationTime: number | null;
+  keys: Keys;
+}
+
+export interface ISubscription {
+  _id: Types.ObjectId;
+  userId: string;
+  app: ChhApps;
+  subscription: Subscription;
+  timeStamp: Date;
+}
+
+interface Token {
   token: string;
   baseUrl: string;
   url: string;
@@ -36,7 +55,7 @@ export interface IAccessToken {
   _id: Types.ObjectId;
   userId: string;
   app: ChhApps;
-  accessToken: IToken;
+  accessToken: Token;
   timeStamp: Date;
 }
 

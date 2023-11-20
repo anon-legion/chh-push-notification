@@ -25,19 +25,16 @@ const notificationSchema = new Schema<INotification>({
   dateTimeSend: {
     type: Date,
     required: false,
-    nullable: true,
     default: null,
   },
   dateTimeRead: {
     type: Date,
     required: false,
-    nullable: true,
     default: null,
   },
   urlRedirect: {
     type: String,
     required: false,
-    nullable: true,
     default: null,
   },
 });
