@@ -50,37 +50,13 @@ app.use((req, _res, next) => {
   next();
 });
 
-const sub = {
-  endpoint:
-    'https://updates.push.services.mozilla.com/wpush/v2/gAAAAABlXGYv6Wn2dwvxESXpfmifdbWSw4bRLlnVO5dxpwHZeH_fAWfe8txEOH5LVSXIveh7r96Vbo4y59sOY6pctbVX6EvCcKoH-0Jk6Cw6FvEbVW6vwOJJdhKJB_RWmL3wm3UTE0tEB4ZtFrpRltwrEK35gBYay-7eWHMuhIdLl2CRKn_w8bA',
-  expirationTime: null,
-  keys: {
-    auth: 'H6W6lIzMRLHRSPlTY7MmTw',
-    p256dh:
-      'BHRi02RBoxC8z8e7jKDtasD6EOUlh21O4PFN68VWvZS_fAgnyyxIgDvEwJbozh0zb5emQuOEMlYlUT9B_yxqDQ8',
-  },
-};
-
 // routes
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/generate_mock_notif', authMiddleware, mockDataRouter);
 app.use('/api/v1/publish', authMiddleware, publishRouter);
 app.use('/api/v1/subscribe', subscribeRouter);
-app.use('/api/v1/test_endpoint', async (req, res: Response, next) => {
-  // res.status(200).send('Express + Typescript Server');
-  const notificationPayload = {
-    notification: {
-      title: req.body.title,
-      body: req.body.body,
-      icon: 'https://cdn-icons-png.flaticon.com/512/8297/8297354.png',
-    },
-  };
-  try {
-    const webpushRes = await webpush.sendNotification(sub, JSON.stringify(notificationPayload));
-    res.status(200).send(webpushRes);
-  } catch (err) {
-    next(err);
-  }
+app.use('/api/v1/test_endpoint', async (_req, res: Response) => {
+  res.status(200).send('Express + Typescript Server');
 });
 
 // 404 and error handler middleware to catch request errors
