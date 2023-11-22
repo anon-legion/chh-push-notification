@@ -16,7 +16,6 @@
   "author": "GoodApps Inc",
   "license": "ISC",
   "dependencies": {
-    "@azure/web-pubsub": "^1.1.1",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
