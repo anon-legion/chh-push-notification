@@ -41,10 +41,10 @@ async function startPolling(req: Request, res: Response, next: NextFunction): Pr
           { $sort: { _id: 1 } },
         ])) ?? [];
 
-      // zip pendingNotifications with their corresponding recipientSubs
+      // zip pendingNotifications with their corresponding recipient subscriptions
       const zippedNotifications = zip(pendingNotifications, recipientSubs);
 
-      // attempt push notification to subscribed user
+      // push notifications to recipient subscriptions
       const pushedNotifications = await Promise.all(
         zippedNotifications.map(async (item) => {
           const notificationPayload = {

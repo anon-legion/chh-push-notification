@@ -67,7 +67,7 @@ export type ILog = {
 //   'alt-svc': string;
 // }
 
-// export interface IRejectReason {
+// export interface IWebpushRejectReason {
 //   name: string;
 //   message: string;
 //   statusCode: number;
