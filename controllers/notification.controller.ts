@@ -42,13 +42,6 @@ async function populateNotificaiton(
         recipientId: randomRecipientId(),
         status: 1,
       }),
-      // Notification.create({
-      //   appReceiver: randomAppReceiver(),
-      //   message: randomMessage(),
-      //   messageType: randomMessageType(),
-      //   recipientId: randomRecipientId(),
-      //   status: 1,
-      // }),
       Notification.create({
         appReceiver: 'pxi',
         message: randomMessage(),

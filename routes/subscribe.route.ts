@@ -10,6 +10,9 @@ router.route('/')
   .post(
     baseStrValidation('userId'),
     baseStrValidation('app'),
+    baseStrValidation('subscription.endpoint'),
+    baseStrValidation('subscription.keys.auth'),
+    baseStrValidation('subscription.keys.p256dh'),
     validationErrorHandler,
     postSubcription
   )

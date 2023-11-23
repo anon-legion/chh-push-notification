@@ -34,7 +34,7 @@ async function postSubcription(req: Request, res: Response, next: NextFunction):
         new: true,
       }
     )
-      .select('-_id accessToken timeStamp')
+      .select('-_id subscription timeStamp')
       .lean();
 
     // db subscriptionQuery guard clause
