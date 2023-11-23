@@ -56,3 +56,22 @@ export type ILog = {
   stack: string[];
   timestamp: Date;
 };
+
+// interface IHeaders {
+//   server: string;
+//   date: string;
+//   'content-length': string;
+//   vary: string;
+//   'strict-transport-security': string;
+//   via: string;
+//   'alt-svc': string;
+// }
+
+// export interface IRejectReason {
+//   name: string;
+//   message: string;
+//   statusCode: number;
+//   headers: IHeaders;
+//   body: string;
+//   endpoint: string;
+// }

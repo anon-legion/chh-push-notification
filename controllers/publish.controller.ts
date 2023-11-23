@@ -1,22 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable security/detect-object-injection */
 import { StatusCodes } from 'http-status-codes';
 import logger from '../logger';
 import Notif from '../models/Notification';
 import Subscription from '../models/Subscription';
 import resObj from './utilities/success-response';
 import zip from './utilities/zip-function';
-// import updateNotification from './utilities/update-notificaiton';
-import type {
-  INotification,
-  MessageType,
-  Subscription as ISubscription,
-} from '../models/types';
+import type { MessageType, INotification } from '../models/types';
 import type { Request, Response, NextFunction } from 'express';
-
-interface IFilteredNotification {
-  notification: INotification;
-  subscriptions: ISubscription[];
-}
 
 let pollingInterval: NodeJS.Timeout | null = null;
 const notificaitonType = new Map<MessageType, string>([
@@ -40,10 +30,10 @@ async function startPolling(req: Request, res: Response, next: NextFunction): Pr
     pollingInterval = setInterval(async () => {
       // check db for pending notifications and sort by recipientId
       const pendingNotifications =
-        (await Notif.find({ status: 1 }).select('-__v').sort({ usrId: 1 }).lean()) ?? [];
-
-      const recipients = pendingNotifications.map((notif) => notif.recipientId);
-      // check db for recipient subscriptions and sort by recipientId
+        (await Notif.find({ status: 1 }).select('-__v').sort({ recipientId: 1 }).lean()) ?? [];
+      // get all unique recipientIds
+      const recipients = [...new Set(pendingNotifications.map((notif) => notif.recipientId))];
+      // check db for all subscriptions of recipient, group by userId, and sort by recipientId
       const recipientSubs =
         (await Subscription.aggregate([
           { $match: { userId: { $in: recipients } } },
@@ -51,9 +41,11 @@ async function startPolling(req: Request, res: Response, next: NextFunction): Pr
           { $sort: { _id: 1 } },
         ])) ?? [];
 
+      // zip pendingNotifications with their corresponding recipientSubs
       const zippedNotifications = zip(pendingNotifications, recipientSubs);
-      // push notification to connected user
-      const sentNotifications = await Promise.all(
+
+      // attempt push notification to subscribed user
+      const pushedNotifications = await Promise.all(
         zippedNotifications.map(async (item) => {
           const notificationPayload = {
             notification: {
@@ -63,7 +55,6 @@ async function startPolling(req: Request, res: Response, next: NextFunction): Pr
             },
           };
 
-          // send notification to subscribed users
           const pushRes = await Promise.allSettled(
             item[1].map(async (sub) => {
               const webpushRes = await webpush.sendNotification(
@@ -73,11 +64,33 @@ async function startPolling(req: Request, res: Response, next: NextFunction): Pr
               return webpushRes;
             })
           );
+
           return pushRes;
         })
       );
 
-      console.log(sentNotifications);
+      const invalidSubIds = new Set();
+      const notificationsSent: INotification[] = [];
+
+      pushedNotifications.forEach((notif, i) =>
+        notif.forEach((sub, j) => {
+          if (sub.status === 'fulfilled') notificationsSent.push(zippedNotifications[i][0]);
+          if (sub.status === 'rejected') invalidSubIds.add(zippedNotifications[i][1][j]._id);
+        })
+      );
+
+      // update notification status
+      if (notificationsSent.length) {
+        await Notif.updateMany(
+          { _id: { $in: notificationsSent.map((notif) => notif._id) } },
+          { status: 2 }
+        );
+      }
+
+      // delete invalid subscriptions
+      if (invalidSubIds.size) {
+        await Subscription.deleteMany({ _id: { $in: [...invalidSubIds] } });
+      }
     }, secondsInterval * 1000);
 
     logger.info('POLLING START');

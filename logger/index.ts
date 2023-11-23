@@ -16,7 +16,7 @@ function generateLogger(env: string): Logger {
   return loggerModule ?? devLogger();
 }
 
-const logger = generateLogger(process.env.NODE_ENV ?? 'dev');
-logger.info(`Logger initialized in [${process.env.NODE_ENV ?? 'dev'}] mode.`);
+const logger = generateLogger(process.env.LOGGER_ENV ?? 'dev');
+logger.info(`Logger initialized in [${process.env.LOGGER_ENV ?? 'dev'}] mode.`);
 
 export default logger;
