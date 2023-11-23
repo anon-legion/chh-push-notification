@@ -83,7 +83,7 @@ async function startPolling(req: Request, res: Response, next: NextFunction): Pr
       if (notificationsSent.length) {
         await Notif.updateMany(
           { _id: { $in: notificationsSent.map((notif) => notif._id) } },
-          { status: 2 }
+          { status: 2, dateTimeSend: new Date() }
         );
       }
 

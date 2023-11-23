@@ -1,4 +1,5 @@
 import { StatusCodes } from 'http-status-codes';
+import { InternalServerError, NotFoundError } from '../errors';
 import Notification from '../models/Notification';
 import resObj from './utilities/success-response';
 import type { Request, Response, NextFunction } from 'express';
@@ -66,38 +67,43 @@ async function populateNotificaiton(
   }
 }
 
-// async function postPushNotif(req: Request, res: Response, next: NextFunction): Promise<void> {
-//   const { serviceClient, body } = req;
-//   logger.info(`target: ${body.target}`);
-//   logger.info(body.notification);
+async function postPushNotif(req: Request, res: Response, next: NextFunction): Promise<void> {
+  const { appReceiver, message, messageType, recipientId, urlRedirect = null } = req.body;
 
-//   try {
-//     if (body.target === '000000000000') {
-//       await serviceClient.sendToAll({
-//         title: 'Notification for all',
-//         message: body.notification,
-//       });
-//     } else {
-//       await serviceClient.sendToUser(body.target, {
-//         title: `Notification for ${body.target}`,
-//         message: body.notification,
-//       });
-//     }
+  const notification = {
+    appReceiver,
+    message,
+    messageType,
+    recipientId,
+    urlRedirect,
+  };
 
-//     res
-//       .status(StatusCodes.OK)
-//       .send(resObj('Publishing push notification', { notification: body.notification }));
-//   } catch (err: any) {
-//     next(err);
-//   }
-// }
+  try {
+    const notificationQuery = await Notification.create(notification);
 
-// async function getPushNotif(_req: Request, res: Response, next: NextFunction): Promise<void> {
-//   try {
-//     res.status(StatusCodes.OK).send(resObj('Getting push notifications'));
-//   } catch (err: any) {
-//     next(err);
-//   }
-// }
+    if (notificationQuery == null || Object.keys(notificationQuery).length === 0)
+      throw new InternalServerError('Something went wrong, notification not created');
 
-export default populateNotificaiton;
+    res.status(StatusCodes.CREATED).send(resObj('Notification created', notificationQuery));
+  } catch (err: any) {
+    next(err);
+  }
+}
+
+async function getPushNotif(req: Request, res: Response, next: NextFunction): Promise<void> {
+  const { limit = 15, page = 1 } = req.query;
+  const skip = (Number(page) - 1) * Number(limit);
+
+  try {
+    const notifications =
+      (await Notification.find().limit(Number(limit)).skip(skip).select('-__v').lean()) ?? [];
+
+    if (notifications.length === 0) throw new NotFoundError('No notifications found');
+
+    res.status(StatusCodes.OK).send(resObj('Getting push notifications', notifications));
+  } catch (err: any) {
+    next(err);
+  }
+}
+
+export { populateNotificaiton, getPushNotif, postPushNotif };

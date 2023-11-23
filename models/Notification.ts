@@ -20,7 +20,8 @@ const notificationSchema = new Schema<INotification>({
   },
   status: {
     type: Number,
-    required: true,
+    required: false,
+    default: 1,
   },
   dateTimeSend: {
     type: Date,
