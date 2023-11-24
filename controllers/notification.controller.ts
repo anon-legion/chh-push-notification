@@ -81,7 +81,7 @@ async function postPushNotif(req: Request, res: Response, next: NextFunction): P
   try {
     const notificationQuery = await Notification.create(notification);
 
-    if (notificationQuery == null || Object.keys(notificationQuery).length === 0)
+    if (notificationQuery == null || !Object.keys(notificationQuery).length)
       throw new InternalServerError('Something went wrong, notification not created');
 
     res.status(StatusCodes.CREATED).send(resObj('Notification created', notificationQuery));
@@ -92,13 +92,17 @@ async function postPushNotif(req: Request, res: Response, next: NextFunction): P
 
 async function getPushNotif(req: Request, res: Response, next: NextFunction): Promise<void> {
   const { limit, page } = req.query;
-  const skip = (Number(page) - 1) * Number(limit);
+  const skip = Math.abs((Number(page) - 1) * Number(limit));
 
   try {
     const notifications =
-      (await Notification.find().limit(Number(limit)).skip(skip).select('-__v').lean()) ?? [];
+      (await Notification.find()
+        .limit(Math.abs(Number(limit)))
+        .skip(skip)
+        .select('-__v')
+        .lean()) ?? [];
 
-    if (notifications.length === 0) throw new NotFoundError('No notifications found');
+    if (!notifications.length) throw new NotFoundError('No notifications found');
 
     res.status(StatusCodes.OK).send(resObj('Getting push notifications', notifications));
   } catch (err: any) {

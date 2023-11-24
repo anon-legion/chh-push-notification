@@ -27,7 +27,7 @@ async function authenticate(req: Request, _res: Response, next: NextFunction): P
 
     // find user in database
     const user = await User.findById(payload.userId).select('-password');
-    // valid user guard clause
+    // invalid user guard clause
     if (!user) throw new UnauthenticatedError('User not found');
 
     // attach userId and username to req.user

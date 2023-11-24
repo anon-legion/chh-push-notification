@@ -18,7 +18,7 @@ async function register(req: Request, res: Response, next: NextFunction): Promis
     // save user to database
     const user = await User.create({ username, email, password });
 
-    if (user == null || Object.keys(user).length === 0)
+    if (user == null || !Object.keys(user).length)
       throw new InternalServerError('Invalid user credentials');
 
     res

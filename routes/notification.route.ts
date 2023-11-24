@@ -3,6 +3,7 @@ import { getPushNotif, postPushNotif } from '../controllers/notification.control
 import validationErrorHandler from '../middlewares/validation-error-handler';
 import baseStrValidation from './utils/base-str-validation';
 import enumsValidation from './utils/enums-validation';
+import sanitizeNumericString from './utils/numeric-string-sanitizer';
 
 const router = Router();
 
@@ -20,8 +21,8 @@ router.route('/')
     (req: Request, _res: Response, next: NextFunction) => {
       let { limit = '15', page = '1' } = req.query;
 
-      limit = Number.isNaN(Number(limit)) ? '15' : limit;
-      page = Number.isNaN(Number(page)) ? '1' : page;
+      limit = sanitizeNumericString(String(limit), '15');
+      page = sanitizeNumericString(String(page), '1');
 
       req.query = { ...req.query, limit, page }
 
