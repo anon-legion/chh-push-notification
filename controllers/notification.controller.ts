@@ -91,7 +91,7 @@ async function postPushNotif(req: Request, res: Response, next: NextFunction): P
 }
 
 async function getPushNotif(req: Request, res: Response, next: NextFunction): Promise<void> {
-  const { limit = 15, page = 1 } = req.query;
+  const { limit, page } = req.query;
   const skip = (Number(page) - 1) * Number(limit);
 
   try {

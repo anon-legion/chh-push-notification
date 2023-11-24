@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, type Request, type Response, type NextFunction } from 'express';
 import { getPushNotif, postPushNotif } from '../controllers/notification.controller';
 import validationErrorHandler from '../middlewares/validation-error-handler';
 import baseStrValidation from './utils/base-str-validation';
@@ -17,6 +17,16 @@ router.route('/')
     postPushNotif
   )
   .get(
+    (req: Request, _res: Response, next: NextFunction) => {
+      let { limit = '15', page = '1' } = req.query;
+
+      limit = Number.isNaN(Number(limit)) ? '15' : limit;
+      page = Number.isNaN(Number(page)) ? '1' : page;
+
+      req.query = { ...req.query, limit, page }
+
+      next();
+    },
     getPushNotif
   )
 
