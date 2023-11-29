@@ -56,7 +56,8 @@ userSchema.post<IUser>(
 userSchema.methods.createJwt = function createJwt() {
   return jwt.sign(
     { userId: this._id, username: this.username },
-    Buffer.from(process.env.JWT_PRVT_KEY ?? '', 'base64').toString('ascii'),
+    // Buffer.from(process.env.JWT_PRVT_KEY ?? '', 'base64').toString('ascii'),
+    Buffer.from(process.env.JWT_PRVT_KEY ?? '', 'base64'),
     {
       algorithm: 'ES384',
       expiresIn: '30d',
