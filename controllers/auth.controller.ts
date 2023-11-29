@@ -34,7 +34,7 @@ async function login(req: Request, res: Response, next: NextFunction): Promise<v
 
   try {
     // find user in database
-    const user = await User.findOne({ email, isActive: true }).select('-_id');
+    const user = await User.findOne({ email, isActive: true }).select('-__v');
 
     // user guard clause
     if (!user) throw new UnauthenticatedError('Invalid user credentials');
