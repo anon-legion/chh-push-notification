@@ -60,7 +60,8 @@ app.use((req, _res, next) => {
 // routes
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/generate_mock_notif', authMiddleware, mockDataRouter);
-app.use('/api/v1/notification', authMiddleware, notificationRouter);
+app.use('/api/v1/notification', notificationRouter);
+// app.use('/api/v1/notification', authMiddleware, notificationRouter);
 app.use('/api/v1/publish', authMiddleware, publishRouter);
 app.use('/api/v1/subscribe', subscribeRouter);
 app.use('/api/v1/test_endpoint', async (_req, res: Response) => {
