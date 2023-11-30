@@ -15,8 +15,6 @@ async function authenticate(req: Request, _res: Response, next: NextFunction): P
   // token guard clause
   if (!token) throw new UnauthenticatedError('Invalid token');
 
-  console.log(Buffer.from(process.env.JWT_PBLC_KEY ?? '', 'base64').toString('ascii'));
-
   try {
     // verify token
     const payload = jwt.verify(token, Buffer.from(process.env.JWT_PBLC_KEY ?? '', 'base64'), {
@@ -25,8 +23,6 @@ async function authenticate(req: Request, _res: Response, next: NextFunction): P
     // token validation and expiry guard claues
     if (payload.exp != null && payload.exp * 1000 < Date.now())
       throw new UnauthenticatedError('Invalid token');
-
-    console.log(payload);
 
     // find user in database
     const user = await User.findById(payload.userId).select('-password');
