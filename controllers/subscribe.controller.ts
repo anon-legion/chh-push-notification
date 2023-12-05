@@ -57,4 +57,22 @@ function getServerPubKey(req: Request, res: Response): void {
   res.status(StatusCodes.OK).send(resObj('VAPID keys retrieved', { publicKey }));
 }
 
-export { postSubcription, getServerPubKey };
+async function deleteSubscription(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  const { endpoint } = req.body;
+
+  try {
+    const deleteResult = await Subscription.deleteOne({ 'subscription.endpoint': endpoint });
+    if (deleteResult.deletedCount === 0)
+      throw new InternalServerError('Nothing was deleted, try again later');
+
+    res.status(StatusCodes.OK).send(resObj('Subscription deleted'));
+  } catch (err: any) {
+    next(err);
+  }
+}
+
+export { postSubcription, getServerPubKey, deleteSubscription };

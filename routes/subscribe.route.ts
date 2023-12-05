@@ -1,5 +1,9 @@
 import { Router } from 'express';
-import { postSubcription, getServerPubKey } from '../controllers/subscribe.controller';
+import {
+  postSubcription,
+  getServerPubKey,
+  deleteSubscription,
+} from '../controllers/subscribe.controller';
 import validationErrorHandler from '../middlewares/validation-error-handler';
 import baseStrValidation from './utils/base-str-validation';
 
@@ -17,5 +21,9 @@ router.route('/')
     postSubcription
   )
   .get(getServerPubKey)
+  .delete(
+    baseStrValidation('endpoint'),
+    deleteSubscription
+  )
 
 export default router;
