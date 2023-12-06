@@ -69,7 +69,9 @@ async function deleteSubscription(
     if (deleteResult.deletedCount === 0)
       throw new InternalServerError('Nothing was deleted, try again later');
 
-    res.status(StatusCodes.OK).send(resObj('Subscription deleted'));
+    res
+      .status(StatusCodes.OK)
+      .send(resObj(`Subscription deleted: ${deleteResult.deletedCount}`));
   } catch (err: any) {
     next(err);
   }
