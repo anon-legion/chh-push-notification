@@ -110,17 +110,17 @@ async function getPushNotif(req: Request, res: Response, next: NextFunction): Pr
   }
 }
 
-async function patchNotifiAsRead(
+async function patchNotifAsRead(
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  const { notificationId } = req.params;
+  const { notificationId, status } = req.body;
 
   try {
     const notification = await Notification.findByIdAndUpdate(
       notificationId,
-      { status: 3, dateTimeRead: new Date() },
+      { status, dateTimeRead: new Date() },
       { new: true }
     )
       .select('-__v')
@@ -134,4 +134,4 @@ async function patchNotifiAsRead(
   }
 }
 
-export { populateNotificaiton, getPushNotif, postPushNotif, patchNotifiAsRead };
+export { populateNotificaiton, getPushNotif, postPushNotif, patchNotifAsRead };

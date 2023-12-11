@@ -2,7 +2,7 @@ import { Router, type Request, type Response, type NextFunction } from 'express'
 import {
   getPushNotif,
   postPushNotif,
-  patchNotifiAsRead,
+  patchNotifAsRead,
 } from '../controllers/notification.controller';
 import validationErrorHandler from '../middlewares/validation-error-handler';
 import baseStrValidation from './utils/base-str-validation';
@@ -34,9 +34,6 @@ router.route('/')
     },
     getPushNotif
   )
-
-// prettier-ignore
-router.route('/:notificationId')
-  .patch(patchNotifiAsRead)
+  .patch(patchNotifAsRead)
 
 export default router;
