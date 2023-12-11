@@ -110,4 +110,28 @@ async function getPushNotif(req: Request, res: Response, next: NextFunction): Pr
   }
 }
 
-export { populateNotificaiton, getPushNotif, postPushNotif };
+async function patchNotifiAsRead(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  const { notificationId } = req.params;
+
+  try {
+    const notification = await Notification.findByIdAndUpdate(
+      notificationId,
+      { status: 3, dateTimeRead: new Date() },
+      { new: true }
+    )
+      .select('-__v')
+      .lean();
+
+    if (!notification) throw new NotFoundError('Notification not found');
+
+    res.status(StatusCodes.OK).send(resObj('Notification marked as read', notification));
+  } catch (err: any) {
+    next(err);
+  }
+}
+
+export { populateNotificaiton, getPushNotif, postPushNotif, patchNotifiAsRead };

@@ -1,5 +1,9 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
-import { getPushNotif, postPushNotif } from '../controllers/notification.controller';
+import {
+  getPushNotif,
+  postPushNotif,
+  patchNotifiAsRead,
+} from '../controllers/notification.controller';
 import validationErrorHandler from '../middlewares/validation-error-handler';
 import baseStrValidation from './utils/base-str-validation';
 import enumsValidation from './utils/enums-validation';
@@ -30,5 +34,9 @@ router.route('/')
     },
     getPushNotif
   )
+
+// prettier-ignore
+router.route('/:notificationId')
+  .patch(patchNotifiAsRead)
 
 export default router;
