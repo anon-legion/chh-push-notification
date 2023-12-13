@@ -138,25 +138,21 @@ async function patchNotifAsRead(
 
 async function getNotifStats(req: Request, res: Response, next: NextFunction): Promise<void> {
   const { datemmddyy } = req.params;
-  const reqDate = new Date(datemmddyy);
-  const dateTimeStart = new Date(reqDate.setDate(reqDate.getDate() - 1));
-  const dateTimeEnd = new Date(reqDate.setDate(reqDate.getDate() + 1));
-  console.log(`reqDate: ${reqDate}\t${typeof reqDate}`);
-  console.log(`datemmddyy: ${datemmddyy}\t${typeof datemmddyy}`);
-  console.log(`dateTimeStart: ${dateTimeStart}\t${typeof dateTimeStart}`);
-  console.log(`dateTimeEnd: ${dateTimeEnd}\t${typeof dateTimeEnd}`);
+  const dateTimeStart = new Date(datemmddyy);
+  const dateTimeEnd = new Date(dateTimeStart);
+  dateTimeEnd.setDate(dateTimeEnd.getDate() + 1);
 
   try {
     const [statsByType, statsByStatus] = await Promise.all([
       Notification.aggregate([
-        // {
-        //   $match: {
-        //     dateTimeIn: {
-        //       $gte: dateTimeStart,
-        //       // $lt: dateTimeEnd,
-        //     },
-        //   },
-        // },
+        {
+          $match: {
+            dateTimeIn: {
+              $gte: dateTimeStart,
+              $lt: dateTimeEnd,
+            },
+          },
+        },
         {
           $group: {
             _id: { appReceiver: '$appReceiver', messageType: '$messageType' },
@@ -183,14 +179,14 @@ async function getNotifStats(req: Request, res: Response, next: NextFunction): P
         },
       ]),
       Notification.aggregate([
-        // {
-        //   $match: {
-        //     dateTimeIn: {
-        //       $gte: dateTimeStart,
-        //       // $lt: dateTimeEnd,
-        //     },
-        //   },
-        // },
+        {
+          $match: {
+            dateTimeIn: {
+              $gte: dateTimeStart,
+              $lt: dateTimeEnd,
+            },
+          },
+        },
         {
           $group: {
             _id: { appReceiver: '$appReceiver', status: '$status' },
