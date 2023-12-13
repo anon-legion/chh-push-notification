@@ -41,6 +41,6 @@ router.route('/')
 
 // prettier-ignore
 router.route('/stats/:datemmddyy')
-  .post(getNotifStats);
+  .get(getNotifStats);
 
 export default router;
