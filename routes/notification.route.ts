@@ -3,6 +3,8 @@ import {
   getPushNotif,
   postPushNotif,
   patchNotifAsRead,
+  getNotifStats,
+  deleteAllNotif,
 } from '../controllers/notification.controller';
 import validationErrorHandler from '../middlewares/validation-error-handler';
 import baseStrValidation from './utils/base-str-validation';
@@ -35,5 +37,10 @@ router.route('/')
     getPushNotif
   )
   .patch(patchNotifAsRead)
+  .delete(deleteAllNotif);
+
+// prettier-ignore
+router.route('/stats/:datemmddyy')
+  .post(getNotifStats);
 
 export default router;

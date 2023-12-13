@@ -38,6 +38,11 @@ const notificationSchema = new Schema<INotification>({
     required: false,
     default: null,
   },
+  dateTimeIn: {
+    type: Date,
+    required: false,
+    default: () => new Date(),
+  },
 });
 
 const Notification = model<INotification>('Notification', notificationSchema);

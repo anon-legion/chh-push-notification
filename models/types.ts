@@ -24,6 +24,7 @@ export interface INotification {
   dateTimeSend: Date;
   dateTimeRead: Date;
   urlRedirect: string | null;
+  dateTimeIn: Date;
 }
 
 interface Keys {
@@ -45,7 +46,7 @@ export interface ISubscription {
   timeStamp: Date;
 }
 
-export type ILog = {
+export interface ILog {
   _id: Types.ObjectId;
   body: Body;
   ip: string;
@@ -55,7 +56,40 @@ export type ILog = {
   path: string;
   stack: string[];
   timestamp: Date;
-};
+}
+
+export interface ByType {
+  admission: number;
+  approve: number;
+  diagResults: number;
+  pf: number;
+}
+
+export interface ByStatus {
+  pending: number;
+  sent: number;
+  read: number;
+}
+
+export interface IStats {
+  total: number;
+  doki: {
+    byType: ByType;
+    byStatus: ByStatus;
+  };
+  nursi: {
+    byType: ByType;
+    byStatus: ByStatus;
+  };
+  pxi: {
+    byType: ByType;
+    byStatus: ByStatus;
+  };
+  resi: {
+    byType: ByType;
+    byStatus: ByStatus;
+  };
+}
 
 // interface IHeaders {
 //   server: string;

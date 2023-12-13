@@ -1,7 +1,9 @@
 import { StatusCodes } from 'http-status-codes';
 import { InternalServerError, NotFoundError } from '../errors';
 import Notification from '../models/Notification';
+import statusKey from './utilities/status-key';
 import resObj from './utilities/success-response';
+import type { ByType, ByStatus, IStats } from '../models/types';
 import type { Request, Response, NextFunction } from 'express';
 
 const randomAppReceiver = (): string => {
@@ -134,4 +136,189 @@ async function patchNotifAsRead(
   }
 }
 
-export { populateNotificaiton, getPushNotif, postPushNotif, patchNotifAsRead };
+async function getNotifStats(req: Request, res: Response, next: NextFunction): Promise<void> {
+  const { datemmddyy } = req.params;
+  const reqDate = new Date(datemmddyy);
+  const dateTimeStart = new Date(reqDate.setDate(reqDate.getDate() - 1));
+  const dateTimeEnd = new Date(reqDate.setDate(reqDate.getDate() + 1));
+  console.log(`reqDate: ${reqDate}\t${typeof reqDate}`);
+  console.log(`datemmddyy: ${datemmddyy}\t${typeof datemmddyy}`);
+  console.log(`dateTimeStart: ${dateTimeStart}\t${typeof dateTimeStart}`);
+  console.log(`dateTimeEnd: ${dateTimeEnd}\t${typeof dateTimeEnd}`);
+
+  try {
+    const [statsByType, statsByStatus] = await Promise.all([
+      Notification.aggregate([
+        // {
+        //   $match: {
+        //     dateTimeIn: {
+        //       $gte: dateTimeStart,
+        //       // $lt: dateTimeEnd,
+        //     },
+        //   },
+        // },
+        {
+          $group: {
+            _id: { appReceiver: '$appReceiver', messageType: '$messageType' },
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $group: {
+            _id: '$_id.appReceiver',
+            byType: {
+              $push: {
+                type: '$_id.messageType',
+                count: '$count',
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            appReceiver: '$_id',
+            byType: 1,
+          },
+        },
+      ]),
+      Notification.aggregate([
+        // {
+        //   $match: {
+        //     dateTimeIn: {
+        //       $gte: dateTimeStart,
+        //       // $lt: dateTimeEnd,
+        //     },
+        //   },
+        // },
+        {
+          $group: {
+            _id: { appReceiver: '$appReceiver', status: '$status' },
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $group: {
+            _id: '$_id.appReceiver',
+            byStatus: {
+              $push: {
+                status: '$_id.status',
+                count: '$count',
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            appReceiver: '$_id',
+            byStatus: 1,
+          },
+        },
+      ]),
+    ]);
+
+    const response: IStats = {
+      total: 0,
+      doki: {
+        byType: {
+          admission: 0,
+          approve: 0,
+          diagResults: 0,
+          pf: 0,
+        },
+        byStatus: {
+          pending: 0,
+          sent: 0,
+          read: 0,
+        },
+      },
+      nursi: {
+        byType: {
+          admission: 0,
+          approve: 0,
+          diagResults: 0,
+          pf: 0,
+        },
+        byStatus: {
+          pending: 0,
+          sent: 0,
+          read: 0,
+        },
+      },
+      pxi: {
+        byType: {
+          admission: 0,
+          approve: 0,
+          diagResults: 0,
+          pf: 0,
+        },
+        byStatus: {
+          pending: 0,
+          sent: 0,
+          read: 0,
+        },
+      },
+      resi: {
+        byType: {
+          admission: 0,
+          approve: 0,
+          diagResults: 0,
+          pf: 0,
+        },
+        byStatus: {
+          pending: 0,
+          sent: 0,
+          read: 0,
+        },
+      },
+    };
+
+    statsByType.forEach((item) => {
+      item.byType.forEach((typeInfo: any) => {
+        (
+          response[item.appReceiver as keyof IStats] as { byType: ByType; byStatus: ByStatus }
+        ).byType[typeInfo.type as keyof ByType] = typeInfo.count;
+        response.total += typeInfo.count;
+      });
+    });
+
+    statsByStatus.forEach((item) => {
+      item.byStatus.forEach((statusInfo: any) => {
+        const key = statusKey(statusInfo.status);
+        (
+          response[item.appReceiver as keyof IStats] as { byType: ByType; byStatus: ByStatus }
+        ).byStatus[key as keyof ByStatus] = statusInfo.count;
+      });
+    });
+
+    res
+      .status(StatusCodes.OK)
+      .send(resObj('Getting notification stats', { ...response, dateTimeStart, dateTimeEnd }));
+  } catch (err: any) {
+    next(err);
+  }
+}
+
+async function deleteAllNotif(_req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const deleteResult = await Notification.deleteMany();
+    if (deleteResult.deletedCount === 0)
+      throw new InternalServerError('Nothing was deleted, try again later');
+
+    res
+      .status(StatusCodes.OK)
+      .send(resObj(`All notifications deleted: ${deleteResult.deletedCount}`));
+  } catch (err: any) {
+    next(err);
+  }
+}
+
+export {
+  populateNotificaiton,
+  getPushNotif,
+  postPushNotif,
+  patchNotifAsRead,
+  getNotifStats,
+  deleteAllNotif,
+};
