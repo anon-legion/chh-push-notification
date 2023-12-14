@@ -1,4 +1,4 @@
-import { Router, type Request, type Response, type NextFunction } from 'express';
+import { Router } from 'express';
 import {
   getPushNotif,
   postPushNotif,
@@ -11,9 +11,16 @@ import {
 import validationErrorHandler from '../middlewares/validation-error-handler';
 import baseStrValidation from './utils/base-str-validation';
 import enumsValidation from './utils/enums-validation';
-import sanitizeNumericString from './utils/numeric-string-sanitizer';
+import validatePagination from './utils/pagination-validation';
 
 const router = Router();
+
+// prettier-ignore
+router.route('/pending')
+  .get(
+    validatePagination,
+    getPendingNotif
+    )
 
 // prettier-ignore
 router.route('/')
@@ -26,24 +33,11 @@ router.route('/')
     postPushNotif
   )
   .get(
-    (req: Request, _res: Response, next: NextFunction) => {
-      let { limit = '15', page = '1' } = req.query;
-
-      limit = sanitizeNumericString(String(limit), '15');
-      page = sanitizeNumericString(String(page), '1');
-
-      req.query = { ...req.query, limit, page }
-
-      next();
-    },
+    validatePagination,
     getPushNotif
   )
   .patch(patchNotifStatus)
   .delete(deleteAllNotif);
-
-// prettier-ignore
-router.route('/pending')
-  .get(getPendingNotif)
 
 // prettier-ignore
 router.route('/stats/:datemmddyy')

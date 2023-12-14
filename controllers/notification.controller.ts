@@ -399,6 +399,44 @@ async function deleteAllNotif(_req: Request, res: Response, next: NextFunction):
   }
 }
 
+async function getNotifByRecipientId(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  const { recipientId } = req.params;
+  const { limit, page } = req.query;
+  const skip = Math.abs((Number(page) - 1) * Number(limit));
+
+  try {
+    const [notifications, totalNotifications] = await Promise.all([
+      Notification.find({ recipientId })
+        .limit(Math.abs(Number(limit)))
+        .skip(skip)
+        .select('-__v')
+        .lean(),
+      Notification.countDocuments(),
+    ]);
+
+    const totalPages = Math.ceil(totalNotifications / Number(limit));
+
+    if (Number(page) > totalPages)
+      throw new NotFoundError('You have exceeded the total number of pages');
+
+    if (!notifications.length && Number(page) <= totalPages)
+      throw new InternalServerError(
+        'Your request could not be completed due to an internal error. Please try again later.'
+      );
+
+    res.status(StatusCodes.OK).send({
+      ...resObj(`Getting push notifications for ${recipientId}`, notifications ?? []),
+      totalCount: totalNotifications ?? 0,
+    });
+  } catch (err: any) {
+    next(err);
+  }
+}
+
 export {
   populateNotificaiton,
   getPushNotif,
@@ -408,4 +446,5 @@ export {
   getStatsByDateRange,
   getPendingNotif,
   deleteAllNotif,
+  getNotifByRecipientId,
 };
