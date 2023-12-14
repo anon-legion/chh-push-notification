@@ -352,16 +352,22 @@ async function getStatsByDateRange(
 async function getPendingNotif(req: Request, res: Response, next: NextFunction): Promise<void> {
   const { limit, page } = req.query;
   const skip = Math.abs((Number(page) - 1) * Number(limit));
+
   try {
-    const pendingNotifications =
-      (await Notification.find({ status: 1 })
+    const [pendingNotifications, totalPending] = await Promise.all([
+      Notification.find({ status: 1 })
         .limit(Math.abs(Number(limit)))
         .skip(skip)
         .sort({ dateTimeIn: -1 })
         .select('-__v')
-        .lean()) ?? [];
+        .lean(),
+      Notification.countDocuments({ status: 1 }),
+    ]);
 
-    res.status(StatusCodes.OK).send(resObj('Pending notification count', pendingNotifications));
+    res.status(StatusCodes.OK).send({
+      ...resObj('Pending notification count', pendingNotifications ?? []),
+      totalCount: totalPending ?? 0,
+    });
   } catch (err: any) {
     next(err);
   }
