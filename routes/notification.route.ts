@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { param } from 'express-validator';
 import {
   getPushNotif,
   postPushNotif,
@@ -7,6 +8,7 @@ import {
   getStatsByDateRange,
   deleteAllNotif,
   getPendingNotif,
+  getNotifByRecipientId,
 } from '../controllers/notification.controller';
 import validationErrorHandler from '../middlewares/validation-error-handler';
 import baseStrValidation from './utils/base-str-validation';
@@ -43,5 +45,13 @@ router.route('/')
 router.route('/stats/:datemmddyy')
   .get(getStatsByDate)
   .post(getStatsByDateRange)
+
+// prettier-ignore
+router.route('/:recipientId')
+  .get(
+    validatePagination,
+    param('recipientId').isString().trim().notEmpty(),
+    getNotifByRecipientId
+  )
 
 export default router;

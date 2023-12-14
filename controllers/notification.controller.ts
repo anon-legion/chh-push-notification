@@ -97,7 +97,7 @@ async function getPushNotif(req: Request, res: Response, next: NextFunction): Pr
 
     const totalPages = Math.ceil(totalNotifications / Number(limit));
 
-    if (Number(page) > totalPages)
+    if (Number(page) > totalPages && totalNotifications)
       throw new NotFoundError('You have exceeded the total number of pages');
 
     if (!notifications.length && Number(page) <= totalPages)
@@ -368,7 +368,7 @@ async function getPendingNotif(req: Request, res: Response, next: NextFunction):
 
     const totalPages = Math.ceil(totalPending / Number(limit));
 
-    if (Number(page) > totalPages)
+    if (Number(page) > totalPages && totalPending)
       throw new NotFoundError('You have exceeded the total number of pages');
 
     if (!pendingNotifications.length && Number(page) <= totalPages)
@@ -415,12 +415,12 @@ async function getNotifByRecipientId(
         .skip(skip)
         .select('-__v')
         .lean(),
-      Notification.countDocuments(),
+      Notification.countDocuments({ recipientId }),
     ]);
 
     const totalPages = Math.ceil(totalNotifications / Number(limit));
 
-    if (Number(page) > totalPages)
+    if (Number(page) > totalPages && totalNotifications)
       throw new NotFoundError('You have exceeded the total number of pages');
 
     if (!notifications.length && Number(page) <= totalPages)
