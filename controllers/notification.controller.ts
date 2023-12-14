@@ -349,6 +349,21 @@ async function getStatsByDateRange(
   }
 }
 
+async function getPendingNotifCount(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const pendingNotifCount = await Notification.countDocuments({ status: 1 });
+    res
+      .status(StatusCodes.OK)
+      .send(resObj('Pending notification count', { pendingNotifCount }));
+  } catch (err: any) {
+    next(err);
+  }
+}
+
 async function deleteAllNotif(_req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const deleteResult = await Notification.deleteMany();
@@ -370,5 +385,6 @@ export {
   patchNotifAsRead,
   getStatsByDate,
   getStatsByDateRange,
+  getPendingNotifCount,
   deleteAllNotif,
 };
