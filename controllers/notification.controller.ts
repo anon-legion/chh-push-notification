@@ -32,38 +32,27 @@ const randomMessageType = (): string => {
 const randomRecipientId = (): string => String(Math.floor(Math.random() * 1000000000000));
 
 async function populateNotificaiton(
-  _req: Request,
+  req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  try {
-    const [notif1, notif2, notif3] = await Promise.all([
-      Notification.create({
-        appReceiver: randomAppReceiver(),
-        message: randomMessage(),
-        messageType: randomMessageType(),
-        recipientId: randomRecipientId(),
-        status: 1,
-      }),
-      Notification.create({
-        appReceiver: randomAppReceiver(),
-        message: randomMessage(),
-        messageType: randomMessageType(),
-        recipientId: randomRecipientId(),
-        status: 1,
-      }),
-      Notification.create({
-        appReceiver: randomAppReceiver(),
-        message: randomMessage(),
-        messageType: randomMessageType(),
-        recipientId: randomRecipientId(),
-        status: 1,
-      }),
-    ]);
+  const { mockDataCount = 3 } = req.body;
+  const arraySize = !Number.isNaN(Number(mockDataCount)) ? Math.abs(Number(mockDataCount)) : 3;
 
-    res
-      .status(StatusCodes.CREATED)
-      .send(resObj('Mock data generated', { notif1, notif2, notif3 }));
+  try {
+    const notifications = Array(arraySize)
+      .fill(null)
+      .map(() => ({
+        appReceiver: randomAppReceiver(),
+        message: randomMessage(),
+        messageType: randomMessageType(),
+        recipientId: randomRecipientId(),
+        status: 1,
+      }));
+
+    const createdNotifications = await Notification.create(notifications);
+
+    res.status(StatusCodes.CREATED).send(resObj('Mock data generated', createdNotifications));
   } catch (err: any) {
     next(err);
   }
