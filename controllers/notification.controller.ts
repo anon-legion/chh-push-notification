@@ -303,17 +303,19 @@ async function getStatsByDateRange(
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  const { datemmddyy: dateTimeStart } = req.params;
-  const { dateTimeEnd } = req.body;
-  // const dateTimeStart = new Date(datemmddyy);
+  const { datemmddyy: dateTimeStartIso } = req.params;
+  const { dateTimeEnd: dateTimeEndIso } = req.body;
+  const dateTimeStart = new Date(dateTimeStartIso);
+  const dateTimeEnd = new Date(dateTimeEndIso);
+  dateTimeEnd.setDate(dateTimeEnd.getDate() + 1);
 
   try {
     const statsByDate = await Notification.aggregate([
       {
         $match: {
           dateTimeSend: {
-            $gte: new Date(dateTimeStart),
-            $lt: new Date(dateTimeEnd),
+            $gte: dateTimeStart,
+            $lt: dateTimeEnd,
           },
         },
       },
@@ -339,7 +341,9 @@ async function getStatsByDateRange(
 
     res
       .status(StatusCodes.OK)
-      .send(resObj(`Generated stats for ${dateTimeStart} to ${dateTimeEnd}`, statsByDate));
+      .send(
+        resObj(`Generated stats for ${dateTimeStartIso} to ${dateTimeEndIso}`, statsByDate)
+      );
   } catch (err) {
     next(err);
   }
