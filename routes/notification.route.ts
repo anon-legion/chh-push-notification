@@ -6,7 +6,7 @@ import {
   getStatsByDate,
   getStatsByDateRange,
   deleteAllNotif,
-  getPendingNotifCount,
+  getPendingNotif,
 } from '../controllers/notification.controller';
 import validationErrorHandler from '../middlewares/validation-error-handler';
 import baseStrValidation from './utils/base-str-validation';
@@ -42,8 +42,8 @@ router.route('/')
   .delete(deleteAllNotif);
 
 // prettier-ignore
-router.route('/stats/pending')
-  .get(getPendingNotifCount)
+router.route('/pending')
+  .get(getPendingNotif)
 
 // prettier-ignore
 router.route('/stats/:datemmddyy')

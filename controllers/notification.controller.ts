@@ -349,16 +349,19 @@ async function getStatsByDateRange(
   }
 }
 
-async function getPendingNotifCount(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
+async function getPendingNotif(req: Request, res: Response, next: NextFunction): Promise<void> {
+  const { limit, page } = req.query;
+  const skip = Math.abs((Number(page) - 1) * Number(limit));
   try {
-    const pendingNotifCount = await Notification.countDocuments({ status: 1 });
-    res
-      .status(StatusCodes.OK)
-      .send(resObj('Pending notification count', { pendingNotifCount }));
+    const pendingNotifications =
+      (await Notification.find({ status: 1 })
+        .limit(Math.abs(Number(limit)))
+        .skip(skip)
+        .sort({ dateTimeIn: -1 })
+        .select('-__v')
+        .lean()) ?? [];
+
+    res.status(StatusCodes.OK).send(resObj('Pending notification count', pendingNotifications));
   } catch (err: any) {
     next(err);
   }
@@ -367,7 +370,7 @@ async function getPendingNotifCount(
 async function deleteAllNotif(_req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const deleteResult = await Notification.deleteMany();
-    if (deleteResult.deletedCount === 0)
+    if (!deleteResult.deletedCount)
       throw new InternalServerError('Nothing was deleted, try again later');
 
     res
@@ -385,6 +388,6 @@ export {
   patchNotifAsRead,
   getStatsByDate,
   getStatsByDateRange,
-  getPendingNotifCount,
+  getPendingNotif,
   deleteAllNotif,
 };
