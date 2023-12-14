@@ -46,17 +46,17 @@ async function populateNotificaiton(
         status: 1,
       }),
       Notification.create({
-        appReceiver: 'pxi',
+        appReceiver: randomAppReceiver(),
         message: randomMessage(),
         messageType: randomMessageType(),
-        recipientId: '987654321012',
+        recipientId: randomRecipientId(),
         status: 1,
       }),
       Notification.create({
-        appReceiver: 'doki',
+        appReceiver: randomAppReceiver(),
         message: randomMessage(),
         messageType: randomMessageType(),
-        recipientId: '123456789123',
+        recipientId: randomRecipientId(),
         status: 1,
       }),
     ]);
@@ -136,7 +136,7 @@ async function patchNotifAsRead(
   }
 }
 
-async function getNotifStats(req: Request, res: Response, next: NextFunction): Promise<void> {
+async function getStatsByDate(req: Request, res: Response, next: NextFunction): Promise<void> {
   const { datemmddyy } = req.params;
   const dateTimeStart = new Date(datemmddyy);
   const dateTimeEnd = new Date(dateTimeStart);
@@ -290,8 +290,57 @@ async function getNotifStats(req: Request, res: Response, next: NextFunction): P
 
     res
       .status(StatusCodes.OK)
-      .send(resObj('Getting notification stats', { ...response, dateTimeStart, dateTimeEnd }));
+      .send(
+        resObj(`Generated stats for ${datemmddyy}`, { ...response, dateTimeStart, dateTimeEnd })
+      );
   } catch (err: any) {
+    next(err);
+  }
+}
+
+async function getStatsByDateRange(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  const { datemmddyy } = req.params;
+  const { dateTimeEnd } = req.body;
+  const dateTimeStart = new Date(datemmddyy);
+
+  try {
+    const statsByDate = await Notification.aggregate([
+      {
+        $match: {
+          dateTimeIn: {
+            $gte: dateTimeStart,
+            $lt: dateTimeEnd,
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: '%m/%d/%Y',
+              date: '$dateTimeIn',
+            },
+          },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          date: '$_id',
+          count: 1,
+        },
+      },
+    ]);
+
+    res
+      .status(StatusCodes.OK)
+      .send(resObj(`Generated stars for ${datemmddyy} to ${dateTimeEnd}`, statsByDate));
+  } catch (err) {
     next(err);
   }
 }
@@ -315,6 +364,7 @@ export {
   getPushNotif,
   postPushNotif,
   patchNotifAsRead,
-  getNotifStats,
+  getStatsByDate,
+  getStatsByDateRange,
   deleteAllNotif,
 };
