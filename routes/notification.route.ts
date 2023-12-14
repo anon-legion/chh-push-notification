@@ -4,6 +4,7 @@ import {
   postPushNotif,
   patchNotifAsRead,
   getStatsByDate,
+  getStatsByDateRange,
   deleteAllNotif,
 } from '../controllers/notification.controller';
 import validationErrorHandler from '../middlewares/validation-error-handler';
@@ -41,6 +42,7 @@ router.route('/')
 
 // prettier-ignore
 router.route('/stats/:datemmddyy')
-  .get(getStatsByDate);
+  .get(getStatsByDate)
+  .post(getStatsByDateRange)
 
 export default router;
