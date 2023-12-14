@@ -90,6 +90,7 @@ async function getPushNotif(req: Request, res: Response, next: NextFunction): Pr
       Notification.find()
         .limit(Math.abs(Number(limit)))
         .skip(skip)
+        .sort({ dateTimeIn: -1 })
         .select('-__v')
         .lean(),
       Notification.countDocuments(),
@@ -413,6 +414,7 @@ async function getNotifByRecipientId(
       Notification.find({ recipientId })
         .limit(Math.abs(Number(limit)))
         .skip(skip)
+        .sort({ dateTimeIn: -1 })
         .select('-__v')
         .lean(),
       Notification.countDocuments({ recipientId }),
