@@ -2,7 +2,7 @@ import { Router, type Request, type Response, type NextFunction } from 'express'
 import {
   getPushNotif,
   postPushNotif,
-  patchNotifAsRead,
+  patchNotifStatus,
   getStatsByDate,
   getStatsByDateRange,
   deleteAllNotif,
@@ -38,7 +38,7 @@ router.route('/')
     },
     getPushNotif
   )
-  .patch(patchNotifAsRead)
+  .patch(patchNotifStatus)
   .delete(deleteAllNotif);
 
 // prettier-ignore

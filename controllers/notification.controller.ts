@@ -86,22 +86,35 @@ async function getPushNotif(req: Request, res: Response, next: NextFunction): Pr
   const skip = Math.abs((Number(page) - 1) * Number(limit));
 
   try {
-    const notifications =
-      (await Notification.find()
+    const [notifications, totalNotifications] = await Promise.all([
+      Notification.find()
         .limit(Math.abs(Number(limit)))
         .skip(skip)
         .select('-__v')
-        .lean()) ?? [];
+        .lean(),
+      Notification.countDocuments(),
+    ]);
 
-    if (!notifications.length) throw new NotFoundError('No notifications found');
+    const totalPages = Math.ceil(totalNotifications / Number(limit));
 
-    res.status(StatusCodes.OK).send(resObj('Getting push notifications', notifications));
+    if (Number(page) > totalPages)
+      throw new NotFoundError('You have exceeded the total number of pages');
+
+    if (!notifications.length && Number(page) <= totalPages)
+      throw new InternalServerError(
+        'Your request could not be completed due to an internal error. Please try again later.'
+      );
+
+    res.status(StatusCodes.OK).send({
+      ...resObj('Getting push notifications', notifications ?? []),
+      totalCount: totalNotifications ?? 0,
+    });
   } catch (err: any) {
     next(err);
   }
 }
 
-async function patchNotifAsRead(
+async function patchNotifStatus(
   req: Request,
   res: Response,
   next: NextFunction
@@ -353,6 +366,16 @@ async function getPendingNotif(req: Request, res: Response, next: NextFunction):
       Notification.countDocuments({ status: 1 }),
     ]);
 
+    const totalPages = Math.ceil(totalPending / Number(limit));
+
+    if (Number(page) > totalPages)
+      throw new NotFoundError('You have exceeded the total number of pages');
+
+    if (!pendingNotifications.length && Number(page) <= totalPages)
+      throw new InternalServerError(
+        'Your request could not be completed due to an internal error. Please try again later.'
+      );
+
     res.status(StatusCodes.OK).send({
       ...resObj('Pending notification count', pendingNotifications ?? []),
       totalCount: totalPending ?? 0,
@@ -380,7 +403,7 @@ export {
   populateNotificaiton,
   getPushNotif,
   postPushNotif,
-  patchNotifAsRead,
+  patchNotifStatus,
   getStatsByDate,
   getStatsByDateRange,
   getPendingNotif,
