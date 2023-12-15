@@ -10,12 +10,20 @@ import type { Request, Response, NextFunction } from 'express';
 
 let pollingInterval: NodeJS.Timeout | null = null;
 const notificaitonType = new Map<MessageType, string>([
-  ['admission', 'Patient Status'],
-  ['approve', 'Doctor Updates'],
-  ['diagResults', 'Diagnostic Results'],
-  ['pf', "Doctor's Professional Fee"],
+  ['admission', 'Admission'],
+  ['approve', 'Approve'],
+  ['diagResults', 'DiagResults'],
+  ['pf', 'PF'],
 ]);
 
+/**
+ * Starts the polling process for sending push notifications.
+ *
+ * @param req - request object.
+ * @param res - response object.
+ * @param next - next function.
+ * @returns Promise<void>
+ */
 async function startPolling(req: Request, res: Response, next: NextFunction): Promise<void> {
   const { webpush } = req;
   const { secondsInterval = 6 } = req.body;
@@ -100,6 +108,12 @@ async function startPolling(req: Request, res: Response, next: NextFunction): Pr
   }
 }
 
+/**
+ * Stops the polling process for sending push notifications.
+ *
+ * @param _req - request object.
+ * @param res - response object.
+ */
 function stopPolling(_req: Request, res: Response): void {
   if (!pollingInterval) {
     logger.info('**polling already stopped**');

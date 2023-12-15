@@ -10,6 +10,14 @@ interface UserRequestBody {
   password: string;
 }
 
+/**
+ * Registers a new user.
+ *
+ * @param req - request object.
+ * @param res - response object.
+ * @param next - next function.
+ * @returns Promise<void>
+ */
 async function register(req: Request, res: Response, next: NextFunction): Promise<void> {
   // destructure payload from req.body
   const { username = '', email = '', password = '' }: UserRequestBody = req.body;
@@ -29,6 +37,14 @@ async function register(req: Request, res: Response, next: NextFunction): Promis
   }
 }
 
+/**
+ * Handles the login request.
+ *
+ * @param req - request object.
+ * @param res - response object.
+ * @param next - next function.
+ * @returns Promise<void>
+ */
 async function login(req: Request, res: Response, next: NextFunction): Promise<void> {
   const { email = '', password = '' }: UserRequestBody = req.body;
 

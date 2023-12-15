@@ -340,6 +340,11 @@ async function getStatsByDateRange(
           count: 1,
         },
       },
+      {
+        $sort: {
+          date: 1,
+        },
+      },
     ]);
 
     res

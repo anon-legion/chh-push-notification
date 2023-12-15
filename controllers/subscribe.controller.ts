@@ -20,6 +20,14 @@ const defaultSubObj = {
   },
 };
 
+/**
+ * Subscribes a user for push notifications.
+ *
+ * @param req - request object.
+ * @param res - response object.
+ * @param next - next function.
+ * @returns Promise<void>
+ */
 async function postSubcription(req: Request, res: Response, next: NextFunction): Promise<void> {
   const { userId = '', app = '', subscription = defaultSubObj }: RequestBody = req.body;
 
@@ -52,11 +60,25 @@ async function postSubcription(req: Request, res: Response, next: NextFunction):
   }
 }
 
+/**
+ * Retrieves the server's public key for VAPID authentication.
+ *
+ * @param req - request object.
+ * @param res - response object.
+ */
 function getServerPubKey(req: Request, res: Response): void {
   const { publicKey } = req.webpush.vapidKeys;
   res.status(StatusCodes.OK).send(resObj('VAPID keys retrieved', { publicKey }));
 }
 
+/**
+ * Deletes a subscription based on the provided endpoint.
+ *
+ * @param req - request object.
+ * @param res - response object.
+ * @param next - next function.
+ * @returns Promise<void>
+ */
 async function deleteSubscription(
   req: Request,
   res: Response,
