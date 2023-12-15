@@ -316,7 +316,7 @@ async function getStatsByDateRange(
     const statsByDate = await Notification.aggregate([
       {
         $match: {
-          dateTimeSend: {
+          dateTimeIn: {
             $gte: dateTimeStart,
             $lt: dateTimeEnd,
           },
@@ -327,7 +327,7 @@ async function getStatsByDateRange(
           _id: {
             $dateToString: {
               format: '%m/%d/%Y',
-              date: '$dateTimeSend',
+              date: '$dateTimeIn',
             },
           },
           count: { $sum: 1 },
@@ -347,11 +347,10 @@ async function getStatsByDateRange(
       },
     ]);
 
-    res
-      .status(StatusCodes.OK)
-      .send(
-        resObj(`Generated stats for ${dateTimeStartIso} to ${dateTimeEndIso}`, statsByDate)
-      );
+    res.status(StatusCodes.OK).send(
+      resObj(`Generated stats for ${dateTimeStartIso} to ${dateTimeEndIso}`, statsByDate)
+      // resObj(`Generated stats for ${dateTimeStart} to ${dateTimeEnd}`, statsByDate)
+    );
   } catch (err) {
     next(err);
   }
