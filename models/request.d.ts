@@ -1,11 +1,4 @@
-import type * as IWebpush from 'web-push';
-
-interface IVapidKeys {
-  publicKey: string;
-  privateKey: string;
-}
-
-type TWebpush = typeof IWebpush & { vapidKeys: IVapidKeys };
+import { TWebpush } from './types';
 
 declare global {
   namespace Express {

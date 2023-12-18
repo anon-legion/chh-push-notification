@@ -10,7 +10,7 @@ import type { MessageType, INotification } from '../models/types';
 import type { Request, Response, NextFunction } from 'express';
 
 let pollingInterval: NodeJS.Timeout | null = null;
-const notificaitonType = new Map<MessageType, string>([
+const notificationType = new Map<MessageType, string>([
   ['admission', 'Admission'],
   ['approve', 'Approve'],
   ['diagResults', 'DiagResults'],
@@ -39,24 +39,11 @@ async function startPolling(req: Request, res: Response, next: NextFunction): Pr
     pollingInterval = setInterval(async () => {
       // check db for pending notifications and sort by recipientId
       const pendingNotifications = await pnsHelper.getPendingNotifications();
-      // const pendingNotifications =
-      //   (await Notif.find({ status: 1 }).select('-__v').sort({ recipientId: 1 }).lean()) ?? [];
-      // console.log(pendingNotifications);
-
-      // get all unique recipientIds
-      // const recipients = [...new Set(pendingNotifications.map((notif) => notif.recipientId))];
       // check db for all subscriptions of recipient, group by userId, and sort by recipientId
       const recipientSubs = await pnsHelper.getRecipientSubs(pendingNotifications);
-      // const recipientSubs =
-      //   (await Subscription.aggregate([
-      //     { $match: { userId: { $in: recipients } } },
-      //     { $group: { _id: '$userId', subscriptions: { $push: '$$ROOT' } } },
-      //     { $sort: { _id: 1 } },
-      //   ])) ?? [];
-
-      console.log(recipientSubs);
 
       if (!recipientSubs.length) return;
+      // console.log('recipientSubs.length', recipientSubs.length);
       // zip pendingNotifications with their corresponding recipient subscriptions
       const zippedNotifications = zip(pendingNotifications, recipientSubs);
 
@@ -65,7 +52,7 @@ async function startPolling(req: Request, res: Response, next: NextFunction): Pr
         zippedNotifications.map(async (item) => {
           const notificationPayload = {
             notification: {
-              title: notificaitonType.get(item[0].messageType),
+              title: notificationType.get(item[0].messageType),
               body: item[0].message,
               icon: 'https://cdn-icons-png.flaticon.com/512/8297/8297354.png',
             },

@@ -1,4 +1,5 @@
 import type { Types } from 'mongoose';
+import type * as IWebpush from 'web-push';
 
 export interface IUser {
   _id: Types.ObjectId;
@@ -91,21 +92,11 @@ export interface IStats {
   };
 }
 
-// interface IHeaders {
-//   server: string;
-//   date: string;
-//   'content-length': string;
-//   vary: string;
-//   'strict-transport-security': string;
-//   via: string;
-//   'alt-svc': string;
-// }
+interface IVapidKeys {
+  publicKey: string;
+  privateKey: string;
+}
 
-// export interface IWebpushRejectReason {
-//   name: string;
-//   message: string;
-//   statusCode: number;
-//   headers: IHeaders;
-//   body: string;
-//   endpoint: string;
-// }
+export type TWebpush = typeof IWebpush & { vapidKeys: IVapidKeys };
+
+export type Zip = [INotification, ISubscription[]];

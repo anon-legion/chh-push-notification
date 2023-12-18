@@ -1,12 +1,10 @@
 /* eslint-disable security/detect-object-injection */
-import { INotification, ISubscription } from '../../models/types';
+import { INotification, ISubscription, Zip } from '../../models/types';
 
 interface IRecipientSubs {
   _id: string;
   subscriptions: ISubscription[];
 }
-
-type Zip = [INotification, ISubscription[]];
 
 // assumes that notifications and recipientSubs are sorted by recipientId in ascending order
 function zip(notifications: INotification[], recipientSubs: IRecipientSubs[]): Zip[] {
