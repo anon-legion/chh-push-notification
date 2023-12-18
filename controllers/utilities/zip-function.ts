@@ -6,7 +6,14 @@ interface IRecipientSubs {
   subscriptions: ISubscription[];
 }
 
-// assumes that notifications and recipientSubs are sorted by recipientId in ascending order
+/**
+ * Zips the notifications with recipient subscriptions.
+ * Assumes that notifications and recipientSubs are sorted by recipientId in ascending order
+ *
+ * @param notifications - The array of notifications.
+ * @param recipientSubs - The array of recipient subscriptions.
+ * @returns An array of zipped objects containing a notification and its corresponding subscriptions.
+ */
 function zip(notifications: INotification[], recipientSubs: IRecipientSubs[]): Zip[] {
   const result: Zip[] = [];
   let notifIndex = 0;

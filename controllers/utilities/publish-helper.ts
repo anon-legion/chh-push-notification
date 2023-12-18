@@ -1,6 +1,9 @@
+/* eslint-disable security/detect-object-injection */
 import Notif from '../../models/Notification';
 import Subscription from '../../models/Subscription';
 import type { INotification, MessageType, TWebpush, Zip } from '../../models/types';
+import type { Types } from 'mongoose';
+import type { SendResult } from 'web-push';
 
 const notificationType = new Map<MessageType, string>([
   ['admission', 'Admission'],
@@ -51,4 +54,39 @@ async function pushNotifications(zippedNotifications: Zip[], webpush: TWebpush) 
   );
 }
 
-export default { getPendingNotifications, getRecipientSubs, pushNotifications };
+function processPushedNotifications(
+  pushedNotifications: PromiseSettledResult<SendResult>[][],
+  zippedNotifications: Zip[]
+) {
+  const invalidSubIds: Set<Types.ObjectId> = new Set();
+  const notificationsSent: INotification[] = [];
+
+  pushedNotifications.forEach((notif, i) =>
+    notif.forEach((sub, j) => {
+      if (sub.status === 'fulfilled') notificationsSent.push(zippedNotifications[i][0]);
+      if (sub.status === 'rejected') invalidSubIds.add(zippedNotifications[i][1][j]._id);
+    })
+  );
+
+  return { invalidSubIds, notificationsSent };
+}
+
+async function updateNotificationStatus(notificationsSent: INotification[]) {
+  await Notif.updateMany(
+    { _id: { $in: notificationsSent.map((notif) => notif._id) } },
+    { status: 2, dateTimeSend: new Date() }
+  );
+}
+
+async function deleteInvalidSubscriptions(invalidSubIds: Set<Types.ObjectId>) {
+  await Subscription.deleteMany({ _id: { $in: [...invalidSubIds] } });
+}
+
+export default {
+  deleteInvalidSubscriptions,
+  getPendingNotifications,
+  getRecipientSubs,
+  processPushedNotifications,
+  pushNotifications,
+  updateNotificationStatus,
+};

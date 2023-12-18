@@ -1,21 +1,12 @@
 /* eslint-disable security/detect-object-injection */
 import { StatusCodes } from 'http-status-codes';
 import logger from '../logger';
-import Notif from '../models/Notification';
-import Subscription from '../models/Subscription';
 import pnsHelper from './utilities/publish-helper';
 import resObj from './utilities/success-response';
 import zip from './utilities/zip-function';
-import type { MessageType, INotification } from '../models/types';
 import type { Request, Response, NextFunction } from 'express';
 
 let pollingInterval: NodeJS.Timeout | null = null;
-const notificationType = new Map<MessageType, string>([
-  ['admission', 'Admission'],
-  ['approve', 'Approve'],
-  ['diagResults', 'DiagResults'],
-  ['pf', 'PF'],
-]);
 
 /**
  * Starts the polling process for sending push notifications.
@@ -23,7 +14,6 @@ const notificationType = new Map<MessageType, string>([
  * @param req - Express request object.
  * @param res - response object.
  * @param next - next function.
- * @returns A promise that resolves to void
  */
 async function startPolling(req: Request, res: Response, next: NextFunction): Promise<void> {
   const { webpush } = req;
@@ -37,62 +27,27 @@ async function startPolling(req: Request, res: Response, next: NextFunction): Pr
 
   try {
     pollingInterval = setInterval(async () => {
-      // check db for pending notifications and sort by recipientId
       const pendingNotifications = await pnsHelper.getPendingNotifications();
-      // check db for all subscriptions of recipient, group by userId, and sort by recipientId
       const recipientSubs = await pnsHelper.getRecipientSubs(pendingNotifications);
 
       if (!recipientSubs.length) return;
-      // console.log('recipientSubs.length', recipientSubs.length);
-      // zip pendingNotifications with their corresponding recipient subscriptions
+
       const zippedNotifications = zip(pendingNotifications, recipientSubs);
-
-      // push notifications to recipient subscriptions
-      const pushedNotifications = await Promise.all(
-        zippedNotifications.map(async (item) => {
-          const notificationPayload = {
-            notification: {
-              title: notificationType.get(item[0].messageType),
-              body: item[0].message,
-              icon: 'https://cdn-icons-png.flaticon.com/512/8297/8297354.png',
-            },
-          };
-
-          const pushRes = await Promise.allSettled(
-            item[1].map(async (sub) => {
-              const webpushRes = await webpush.sendNotification(
-                sub.subscription,
-                JSON.stringify(notificationPayload)
-              );
-              return webpushRes;
-            })
-          );
-
-          return pushRes;
-        })
+      const pushedNotifications = await pnsHelper.pushNotifications(
+        zippedNotifications,
+        webpush
+      );
+      const { invalidSubIds, notificationsSent } = pnsHelper.processPushedNotifications(
+        pushedNotifications,
+        zippedNotifications
       );
 
-      const invalidSubIds = new Set();
-      const notificationsSent: INotification[] = [];
-
-      pushedNotifications.forEach((notif, i) =>
-        notif.forEach((sub, j) => {
-          if (sub.status === 'fulfilled') notificationsSent.push(zippedNotifications[i][0]);
-          if (sub.status === 'rejected') invalidSubIds.add(zippedNotifications[i][1][j]._id);
-        })
-      );
-
-      // update notification status
       if (notificationsSent.length) {
-        await Notif.updateMany(
-          { _id: { $in: notificationsSent.map((notif) => notif._id) } },
-          { status: 2, dateTimeSend: new Date() }
-        );
+        pnsHelper.updateNotificationStatus(notificationsSent);
       }
 
-      // delete invalid subscriptions
       if (invalidSubIds.size) {
-        await Subscription.deleteMany({ _id: { $in: [...invalidSubIds] } });
+        await pnsHelper.deleteInvalidSubscriptions(invalidSubIds);
       }
     }, secondsInterval * 1000);
 
