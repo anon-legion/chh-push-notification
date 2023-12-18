@@ -26,7 +26,6 @@ const defaultSubObj = {
  * @param req - request object.
  * @param res - response object.
  * @param next - next function.
- * @returns Promise<void>
  */
 async function postSubcription(req: Request, res: Response, next: NextFunction): Promise<void> {
   const { userId = '', app = '', subscription = defaultSubObj }: RequestBody = req.body;
@@ -77,7 +76,6 @@ function getServerPubKey(req: Request, res: Response): void {
  * @param req - request object.
  * @param res - response object.
  * @param next - next function.
- * @returns Promise<void>
  */
 async function deleteSubscription(
   req: Request,

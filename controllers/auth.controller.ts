@@ -16,7 +16,6 @@ interface UserRequestBody {
  * @param req - request object.
  * @param res - response object.
  * @param next - next function.
- * @returns Promise<void>
  */
 async function register(req: Request, res: Response, next: NextFunction): Promise<void> {
   // destructure payload from req.body
@@ -43,7 +42,6 @@ async function register(req: Request, res: Response, next: NextFunction): Promis
  * @param req - request object.
  * @param res - response object.
  * @param next - next function.
- * @returns Promise<void>
  */
 async function login(req: Request, res: Response, next: NextFunction): Promise<void> {
   const { email = '', password = '' }: UserRequestBody = req.body;
