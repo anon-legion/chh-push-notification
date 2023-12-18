@@ -3,6 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 import logger from '../logger';
 import Notif from '../models/Notification';
 import Subscription from '../models/Subscription';
+import pnsHelper from './utilities/publish-helper';
 import resObj from './utilities/success-response';
 import zip from './utilities/zip-function';
 import type { MessageType, INotification } from '../models/types';
@@ -19,10 +20,10 @@ const notificaitonType = new Map<MessageType, string>([
 /**
  * Starts the polling process for sending push notifications.
  *
- * @param req - request object.
+ * @param req - Express request object.
  * @param res - response object.
  * @param next - next function.
- * @returns Promise<void>
+ * @returns A promise that resolves to void
  */
 async function startPolling(req: Request, res: Response, next: NextFunction): Promise<void> {
   const { webpush } = req;
@@ -37,18 +38,25 @@ async function startPolling(req: Request, res: Response, next: NextFunction): Pr
   try {
     pollingInterval = setInterval(async () => {
       // check db for pending notifications and sort by recipientId
-      const pendingNotifications =
-        (await Notif.find({ status: 1 }).select('-__v').sort({ recipientId: 1 }).lean()) ?? [];
-      // get all unique recipientIds
-      const recipients = [...new Set(pendingNotifications.map((notif) => notif.recipientId))];
-      // check db for all subscriptions of recipient, group by userId, and sort by recipientId
-      const recipientSubs =
-        (await Subscription.aggregate([
-          { $match: { userId: { $in: recipients } } },
-          { $group: { _id: '$userId', subscriptions: { $push: '$$ROOT' } } },
-          { $sort: { _id: 1 } },
-        ])) ?? [];
+      const pendingNotifications = await pnsHelper.getPendingNotifications();
+      // const pendingNotifications =
+      //   (await Notif.find({ status: 1 }).select('-__v').sort({ recipientId: 1 }).lean()) ?? [];
+      // console.log(pendingNotifications);
 
+      // get all unique recipientIds
+      // const recipients = [...new Set(pendingNotifications.map((notif) => notif.recipientId))];
+      // check db for all subscriptions of recipient, group by userId, and sort by recipientId
+      const recipientSubs = await pnsHelper.getRecipientSubs(pendingNotifications);
+      // const recipientSubs =
+      //   (await Subscription.aggregate([
+      //     { $match: { userId: { $in: recipients } } },
+      //     { $group: { _id: '$userId', subscriptions: { $push: '$$ROOT' } } },
+      //     { $sort: { _id: 1 } },
+      //   ])) ?? [];
+
+      console.log(recipientSubs);
+
+      if (!recipientSubs.length) return;
       // zip pendingNotifications with their corresponding recipient subscriptions
       const zippedNotifications = zip(pendingNotifications, recipientSubs);
 
