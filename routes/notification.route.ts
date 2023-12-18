@@ -22,7 +22,7 @@ router.route('/pending')
   .get(
     validatePagination,
     getPendingNotif
-    )
+  )
 
 // prettier-ignore
 router.route('/')
