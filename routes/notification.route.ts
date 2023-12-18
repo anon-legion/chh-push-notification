@@ -29,7 +29,7 @@ router.route('/')
   .post(
     enumsValidation('appReceiver', ['doki', 'nursi', 'pxi', 'resi']),
     baseStrValidation('message'),
-    enumsValidation('messageType', ['admission', 'approve', 'diagResults', 'pf']),
+    // enumsValidation('messageType', ['admission', 'approve', 'diagResults', 'pf']),
     baseStrValidation('recipientId'),
     validationErrorHandler,
     postPushNotif
