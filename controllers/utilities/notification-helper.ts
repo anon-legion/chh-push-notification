@@ -136,6 +136,17 @@ function queryCountByStatus(dateTimeStart: Date, dateTimeEnd: Date) {
   ];
 }
 
+/**
+ * Creates a Mongoose query object for fuzzy searching on multiple fields.
+ * @param fields - The fields to search on.
+ * @param search - The search term.
+ * @returns The Mongoose query object.
+ */
+function queryFuzzyFind(fields: string[], search: string) {
+  const or = fields.map((field) => ({ [field]: { $regex: search, $options: 'i' } }));
+  return { $or: or };
+}
+
 const randomAppReceiver = (): string => {
   const apps = ['doki', 'nursi', 'pxi', 'resi'];
   return apps[Math.floor(Math.random() * apps.length)];
@@ -166,6 +177,7 @@ export default {
   createAggregationPipeline,
   queryCountByStatus,
   queryCountByType,
+  queryFuzzyFind,
   randomAppReceiver,
   randomMessage,
   randomMessageType,

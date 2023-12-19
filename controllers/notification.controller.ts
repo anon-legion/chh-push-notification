@@ -344,11 +344,54 @@ async function getPushNotifByType(
     next(err);
   }
 }
+
+async function postPushNotifSearch(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  const { limit, page } = req.query;
+  const { search } = req.body;
+  const skip = Math.abs((Number(page) - 1) * Number(limit));
+
+  try {
+    const [notifications, totalNotifications] = await Promise.all([
+      Notification.find(notifHelper.queryFuzzyFind(['message', 'recipientId'], search))
+        .limit(Math.abs(Number(limit)))
+        .skip(skip)
+        .sort({ dateTimeIn: -1 })
+        .select('-__v')
+        .lean(),
+      Notification.countDocuments(
+        notifHelper.queryFuzzyFind(['message', 'recipientId'], search)
+      ),
+    ]);
+
+    const totalPages = Math.ceil(totalNotifications / Number(limit));
+
+    if (Number(page) > totalPages && totalNotifications)
+      throw new NotFoundError('You have exceeded the total number of pages');
+
+    if (!notifications.length && Number(page) <= totalPages)
+      throw new InternalServerError(
+        'Your request could not be completed due to an internal error. Please try again later.'
+      );
+
+    res.status(StatusCodes.OK).send({
+      ...resObj('Getting push notifications by message type', notifications ?? []),
+      totalCount: totalNotifications ?? 0,
+    });
+  } catch (err: any) {
+    next(err);
+  }
+}
+
 export {
   populateNotificaiton,
   getPushNotif,
   getPushNotifByType,
   postPushNotif,
+  postPushNotifSearch,
   patchNotifStatus,
   getStatsByDate,
   getStatsByDateRange,

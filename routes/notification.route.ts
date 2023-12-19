@@ -4,6 +4,7 @@ import {
   getPushNotif,
   getPushNotifByType,
   postPushNotif,
+  postPushNotifSearch,
   patchNotifStatus,
   getStatsByDate,
   getStatsByDateRange,
@@ -23,6 +24,15 @@ router.route('/pending')
   .get(
     validatePagination,
     getPendingNotif
+  )
+
+// prettier-ignore
+router.route('/search')
+  .post(
+    validatePagination,
+    baseStrValidation('search'),
+    validationErrorHandler,
+    postPushNotifSearch
   )
 
 // prettier-ignore
