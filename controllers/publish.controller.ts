@@ -1,4 +1,3 @@
-/* eslint-disable security/detect-object-injection */
 import { StatusCodes } from 'http-status-codes';
 import logger from '../logger';
 import pnsHelper from './utilities/publish-helper';
