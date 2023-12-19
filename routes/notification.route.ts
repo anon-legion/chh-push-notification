@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { param } from 'express-validator';
 import {
   getPushNotif,
+  getPushNotifByType,
   postPushNotif,
   patchNotifStatus,
   getStatsByDate,
@@ -45,6 +46,14 @@ router.route('/')
 router.route('/stats/:datemmddyy')
   .get(getStatsByDate)
   .post(getStatsByDateRange)
+
+// prettier-ignore
+router.route('/message_type/:messageType')
+  .get(
+    validatePagination,
+    param('messageType').isString().trim().notEmpty(),
+    getPushNotifByType
+  )
 
 // prettier-ignore
 router.route('/:recipientId')
