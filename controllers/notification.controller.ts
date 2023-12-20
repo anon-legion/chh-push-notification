@@ -57,52 +57,6 @@ async function postPushNotif(req: Request, res: Response, next: NextFunction): P
   }
 }
 
-async function getPushNotifByDateRange(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
-  const {
-    limit,
-    page,
-    dateTimeStart: dateTimeStartIso,
-    dateTimeEnd: dateTimeEndIso,
-  } = req.query;
-  const dateTimeStart = new Date(dateTimeStartIso as string);
-  const dateTimeEnd = new Date(dateTimeEndIso as string);
-  dateTimeEnd.setDate(dateTimeEnd.getDate() + 1);
-  const skip = Math.abs((Number(page) - 1) * Number(limit));
-
-  try {
-    const [notifications, totalNotifications] = await Promise.all([
-      Notification.find({ dateTimeIn: { $gte: dateTimeStart, $lt: dateTimeEnd } })
-        .limit(Math.abs(Number(limit)))
-        .skip(skip)
-        .sort({ dateTimeIn: -1 })
-        .select('-__v')
-        .lean(),
-      Notification.countDocuments({ dateTimeIn: { $gte: dateTimeStart, $lt: dateTimeEnd } }),
-    ]);
-
-    const totalPages = Math.ceil(totalNotifications / Number(limit));
-
-    if (Number(page) > totalPages && totalNotifications)
-      throw new NotFoundError('You have exceeded the total number of pages');
-
-    if (!notifications.length && Number(page) <= totalPages)
-      throw new InternalServerError(
-        'Your request could not be completed due to an internal error. Please try again later.'
-      );
-
-    res.status(StatusCodes.OK).send({
-      ...resObj('Getting push notifications', notifications ?? []),
-      totalCount: totalNotifications ?? 0,
-    });
-  } catch (err: any) {
-    next(err);
-  }
-}
-
 async function patchNotifStatus(
   req: Request,
   res: Response,
@@ -323,12 +277,16 @@ async function getPushNotifByType(
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  const { limit, page } = req.query;
   const { messageType } = req.params;
+  const { limit, page, datemmddyy } = req.query;
   const skip = Math.abs((Number(page) - 1) * Number(limit));
-  let query = {};
+  const dateTimeStart = new Date(datemmddyy as string);
+  const dateTimeEnd = new Date(dateTimeStart);
+  dateTimeEnd.setDate(dateTimeEnd.getDate() + 1);
+
+  const query: Record<string, any> = { dateTimeIn: { $gte: dateTimeStart, $lt: dateTimeEnd } };
   if (messageType.toLowerCase() !== 'all') {
-    query = { messageType };
+    query.messageType = messageType;
   }
 
   try {
@@ -404,7 +362,6 @@ async function postPushNotifSearch(
 
 export {
   populateNotificaiton,
-  getPushNotifByDateRange,
   getPushNotifByType,
   postPushNotif,
   postPushNotifSearch,
