@@ -314,16 +314,20 @@ async function getPushNotifByType(
   const { limit, page } = req.query;
   const { messageType } = req.params;
   const skip = Math.abs((Number(page) - 1) * Number(limit));
+  let query = {};
+  if (messageType.toLowerCase() !== 'all') {
+    query = { messageType };
+  }
 
   try {
     const [notifications, totalNotifications] = await Promise.all([
-      Notification.find({ messageType })
+      Notification.find(query)
         .limit(Math.abs(Number(limit)))
         .skip(skip)
         .sort({ dateTimeIn: -1 })
         .select('-__v')
         .lean(),
-      Notification.countDocuments({ messageType }),
+      Notification.countDocuments(query),
     ]);
 
     const totalPages = Math.ceil(totalNotifications / Number(limit));
