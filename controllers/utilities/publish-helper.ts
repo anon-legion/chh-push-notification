@@ -36,7 +36,17 @@ async function pushNotifications(zippedNotifications: Zip[], webpush: TWebpush) 
           title: notificationType.get(item[0].messageType),
           body: item[0].message,
           icon: 'https://cdn-icons-png.flaticon.com/512/8297/8297354.png',
-          data: item[0].urlRedirect,
+          actions: item[0].urlRedirect ? [{ action: 'redirect', title: 'View Details' }] : [],
+          data: item[0].urlRedirect
+            ? {
+                onActionClick: {
+                  redirect: {
+                    operation: 'navigateLastFocusedOrOpen',
+                    url: item[0].urlRedirect,
+                  },
+                },
+              }
+            : {},
         },
       };
 
