@@ -57,19 +57,31 @@ async function postPushNotif(req: Request, res: Response, next: NextFunction): P
   }
 }
 
-async function getPushNotif(req: Request, res: Response, next: NextFunction): Promise<void> {
-  const { limit, page } = req.query;
+async function getPushNotifByDateRange(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  const {
+    limit,
+    page,
+    dateTimeStart: dateTimeStartIso,
+    dateTimeEnd: dateTimeEndIso,
+  } = req.query;
+  const dateTimeStart = new Date(dateTimeStartIso as string);
+  const dateTimeEnd = new Date(dateTimeEndIso as string);
+  dateTimeEnd.setDate(dateTimeEnd.getDate() + 1);
   const skip = Math.abs((Number(page) - 1) * Number(limit));
 
   try {
     const [notifications, totalNotifications] = await Promise.all([
-      Notification.find()
+      Notification.find({ dateTimeIn: { $gte: dateTimeStart, $lt: dateTimeEnd } })
         .limit(Math.abs(Number(limit)))
         .skip(skip)
         .sort({ dateTimeIn: -1 })
         .select('-__v')
         .lean(),
-      Notification.countDocuments(),
+      Notification.countDocuments({ dateTimeIn: { $gte: dateTimeStart, $lt: dateTimeEnd } }),
     ]);
 
     const totalPages = Math.ceil(totalNotifications / Number(limit));
@@ -392,7 +404,7 @@ async function postPushNotifSearch(
 
 export {
   populateNotificaiton,
-  getPushNotif,
+  getPushNotifByDateRange,
   getPushNotifByType,
   postPushNotif,
   postPushNotifSearch,
