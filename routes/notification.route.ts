@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { param } from 'express-validator';
 import {
-  getPushNotif,
+  getPushNotifByDateRange,
   getPushNotifByType,
   postPushNotif,
   postPushNotifSearch,
@@ -47,7 +47,7 @@ router.route('/')
   )
   .get(
     validatePagination,
-    getPushNotif
+    getPushNotifByDateRange
   )
   .patch(patchNotifStatus)
   .delete(deleteAllNotif);
