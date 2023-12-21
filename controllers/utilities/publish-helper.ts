@@ -35,7 +35,7 @@ async function pushNotifications(zippedNotifications: Zip[], webpush: TWebpush) 
         notification: {
           title: notificationType.get(item[0].messageType),
           body: item[0].message,
-          icon: 'https://cdn-icons-png.flaticon.com/512/8297/8297354.png',
+          icon: 'https://sdg-dokivendor.chonghua.com.ph/assets/icon/logoicon.png',
           actions: item[0].urlRedirect ? [{ action: 'redirect', title: 'View Details' }] : [],
           data: item[0].urlRedirect
             ? {
