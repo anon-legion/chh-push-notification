@@ -136,14 +136,39 @@ function queryCountByStatus(dateTimeStart: Date, dateTimeEnd: Date) {
   ];
 }
 
+const statusStrToNum = (status: string) => {
+  switch (status) {
+    case 'pending':
+      return 1;
+    case 'sent':
+      return 2;
+    case 'read':
+      return 3;
+    default:
+      return 0;
+  }
+};
+
 /**
  * Creates a Mongoose query object for fuzzy searching on multiple fields.
  * @param fields - The fields to search on.
  * @param search - The search term.
  * @returns The Mongoose query object.
  */
-function queryFuzzyFind(fields: string[], search: string) {
-  const or = fields.map((field) => ({ [field]: { $regex: search, $options: 'i' } }));
+function queryFuzzyFind(fields: string[], search: string, status: string = 'all') {
+  const messageStatus = statusStrToNum(status || 'all');
+  const or: Record<string, any>[] = [];
+
+  if (!messageStatus) {
+    fields.forEach((field) => or.push({ [field]: { $regex: search, $options: 'i' } }));
+  }
+
+  if (messageStatus) {
+    fields.forEach((field) =>
+      or.push({ [field]: { $regex: search, $options: 'i' }, status: messageStatus })
+    );
+  }
+  // const or = fields.map((field) => ({ [field]: { $regex: search, $options: 'i' } }));
   return { $or: or };
 }
 
