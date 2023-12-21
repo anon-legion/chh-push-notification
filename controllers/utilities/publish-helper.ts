@@ -40,6 +40,7 @@ async function pushNotifications(zippedNotifications: Zip[], webpush: TWebpush) 
           data: item[0].urlRedirect
             ? {
                 onActionClick: {
+                  default: { operation: 'openWindow', url: item[0].urlRedirect },
                   redirect: {
                     operation: 'navigateLastFocusedOrOpen',
                     url: item[0].urlRedirect,
