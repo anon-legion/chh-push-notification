@@ -324,20 +324,22 @@ async function postPushNotifSearch(
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  const { limit, page } = req.query;
+  const { limit, page, status = 'all' } = req.query;
   const { search } = req.body;
   const skip = Math.abs((Number(page) - 1) * Number(limit));
 
   try {
     const [notifications, totalNotifications] = await Promise.all([
-      Notification.find(notifHelper.queryFuzzyFind(['message', 'recipientId'], search))
+      Notification.find(
+        notifHelper.queryFuzzyFind(['message', 'recipientId'], search, status as string)
+      )
         .limit(Math.abs(Number(limit)))
         .skip(skip)
         .sort({ dateTimeIn: -1 })
         .select('-__v')
         .lean(),
       Notification.countDocuments(
-        notifHelper.queryFuzzyFind(['message', 'recipientId'], search)
+        notifHelper.queryFuzzyFind(['message', 'recipientId'], search, status as string)
       ),
     ]);
 
