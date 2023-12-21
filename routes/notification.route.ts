@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { param } from 'express-validator';
+import { param, query } from 'express-validator';
 import {
   getPushNotifByType,
   postPushNotif,
@@ -22,6 +22,8 @@ const router = Router();
 router.route('/pending')
   .get(
     validatePagination,
+    query('messageType').isString().trim().notEmpty(),
+    validationErrorHandler,
     getPendingNotif
   )
 
@@ -57,6 +59,7 @@ router.route('/message_type/:messageType')
   .get(
     validatePagination,
     param('messageType').isString().trim().notEmpty(),
+    validationErrorHandler,
     getPushNotifByType
   )
 
@@ -65,6 +68,7 @@ router.route('/:recipientId')
   .get(
     validatePagination,
     param('recipientId').isString().trim().notEmpty(),
+    validationErrorHandler,
     getNotifByRecipientId
   )
 
