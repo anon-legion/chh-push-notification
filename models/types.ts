@@ -11,7 +11,6 @@ export interface IUser {
   comparePassword: (password: string) => Promise<boolean>;
 }
 
-export type MessageType = 'admission' | 'approve' | 'diagResults' | 'pf';
 export type ChhApps = 'doki' | 'nursi' | 'pxi' | 'resi';
 type Status = 1 | 2 | 3;
 
@@ -19,7 +18,7 @@ export interface INotification {
   _id: Types.ObjectId;
   appReceiver: ChhApps;
   message: string;
-  messageType: MessageType;
+  messageType: string;
   recipientId: string;
   status: Status;
   dateTimeSend: Date;
