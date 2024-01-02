@@ -1,16 +1,9 @@
 /* eslint-disable security/detect-object-injection */
 import Notif from '../../models/Notification';
 import Subscription from '../../models/Subscription';
-import type { INotification, MessageType, TWebpush, Zip } from '../../models/types';
+import type { INotification, TWebpush, Zip } from '../../models/types';
 import type { Types } from 'mongoose';
 import type { SendResult } from 'web-push';
-
-const notificationType = new Map<MessageType, string>([
-  ['admission', 'Admission'],
-  ['approve', 'Approve'],
-  ['diagResults', 'DiagResults'],
-  ['pf', 'PF'],
-]);
 
 async function getPendingNotifications() {
   return (await Notif.find({ status: 1 }).select('-__v').sort({ recipientId: 1 }).lean()) ?? [];
@@ -33,7 +26,7 @@ async function pushNotifications(zippedNotifications: Zip[], webpush: TWebpush) 
     zippedNotifications.map(async (item) => {
       const notificationPayload = {
         notification: {
-          title: notificationType.get(item[0].messageType),
+          title: item[0].messageType,
           body: item[0].message,
           icon: 'https://sdg-dokivendor.chonghua.com.ph/assets/icon/logoicon.png',
           actions: item[0].urlRedirect ? [{ action: 'redirect', title: 'View Details' }] : [],
