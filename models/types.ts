@@ -99,3 +99,11 @@ interface IVapidKeys {
 export type TWebpush = typeof IWebpush & { vapidKeys: IVapidKeys };
 
 export type Zip = [INotification, ISubscription[]];
+
+export interface IMessageType {
+  _id: Types.ObjectId;
+  appReceiver: ChhApps;
+  messageType: string;
+  title: string;
+  isActive: boolean;
+}
