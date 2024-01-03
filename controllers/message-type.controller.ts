@@ -21,13 +21,14 @@ async function getMessageTypes(req: Request, res: Response, next: NextFunction):
 }
 
 async function postMessageType(req: Request, res: Response, next: NextFunction): Promise<void> {
-  const { appReceiver, messageType, title } = req.body;
+  const { appReceiver, messageType, title, isActive = true } = req.body;
 
   try {
     const newMessageType = await MessageType.create({
       appReceiver,
       messageType,
       title,
+      isActive,
     });
 
     if (newMessageType == null || !Object.keys(newMessageType).length)
@@ -44,7 +45,7 @@ async function updateMessageType(
   res: Response,
   next: NextFunction
 ): Promise<void> {
-  const { appReceiver, messageType, title, messageTypeId } = req.body;
+  const { appReceiver, messageType, title, isActive = true, messageTypeId } = req.body;
 
   try {
     const updatedMessageType = await MessageType.findByIdAndUpdate(
@@ -53,6 +54,7 @@ async function updateMessageType(
         appReceiver,
         messageType,
         title,
+        isActive,
       },
       { new: true }
     )
