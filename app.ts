@@ -11,6 +11,7 @@ import authMiddleware from './middlewares/authentication';
 import errorHandlerMiddleware from './middlewares/error-handler';
 import notFoundMiddleware from './middlewares/not-found';
 import xssSanitizer from './middlewares/xss-sanitzer';
+import appRouter from './routes/app.route';
 import authRouter from './routes/auth.route';
 import messageTypeRouter from './routes/message-type.route';
 import mockDataRouter from './routes/mock-data.route';
@@ -59,6 +60,7 @@ app.use((req, _res, next) => {
 });
 
 // routes
+app.use('/api/v1/app', appRouter);
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/message_type', messageTypeRouter);
 app.use('/api/v1/generate_mock_notif', authMiddleware, mockDataRouter);

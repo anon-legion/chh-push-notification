@@ -107,3 +107,10 @@ export interface IMessageType {
   title: string;
   isActive: boolean;
 }
+
+export interface IApp {
+  _id: Types.ObjectId;
+  appCode: string;
+  appName: string;
+  isActive: boolean;
+}
