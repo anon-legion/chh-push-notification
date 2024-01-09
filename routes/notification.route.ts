@@ -7,7 +7,7 @@ import {
   patchNotifStatus,
   getStatsByDate,
   getStatsByDateRange,
-  deleteAllNotif,
+  deleteOldNotifs,
   getPendingNotif,
   getNotifByRecipientId,
 } from '../controllers/notification.controller';
@@ -47,7 +47,7 @@ router.route('/')
     postPushNotif
   )
   .patch(patchNotifStatus)
-  .delete(deleteAllNotif);
+  .delete(deleteOldNotifs);
 
 // prettier-ignore
 router.route('/stats/:datemmddyy')
