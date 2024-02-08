@@ -64,7 +64,7 @@ router.route('/message_type/:messageType')
   )
 
 // prettier-ignore
-router.route('/:recipientId')
+router.route('recipient/:recipientId')
   .get(
     validatePagination,
     param('recipientId').isString().trim().notEmpty(),

@@ -79,7 +79,13 @@ app.use(errorHandlerMiddleware);
 async function start(): Promise<void> {
   try {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    await mongoose.connect(process.env.MDB_URI!, { dbName: 'chh-notification' });
+    // await mongoose.connect(process.env.MDB_URI!, { dbName: 'chh-notification' });
+    await mongoose.connect(process.env.MDB_URI_CHH!, {
+      user: process.env.MDB_USR_CHH!,
+      pass: process.env.MDB_PWD_CHH!,
+      dbName: 'pndb01',
+    });
+    // await mongoose.connect(process.env.MDB_URI!, { dbName: 'chh-notification' });
     app.listen(port, () => {
       logger.info(`Server is listening on port [${port}]`);
     });

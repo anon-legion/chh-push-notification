@@ -230,10 +230,10 @@ async function deleteOldNotifs(
   next: NextFunction
 ): Promise<void> {
   const twoWeeksAgo = new Date();
-  twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+  // twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
 
   try {
-    const deleteResult = await Notification.deleteMany({ dateTimeIn: { $lt: twoWeeksAgo } });
+    const deleteResult = await Notification.deleteMany({ dateTimeIn: { $lte: twoWeeksAgo } });
     if (!deleteResult.deletedCount)
       throw new InternalServerError('Nothing was deleted, try again later');
 
